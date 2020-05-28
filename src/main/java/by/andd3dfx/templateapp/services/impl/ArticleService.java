@@ -1,30 +1,30 @@
 package by.andd3dfx.templateapp.services.impl;
 
 import by.andd3dfx.templateapp.dto.ArticleDto;
+import by.andd3dfx.templateapp.dto.ArticleSearchCriteria;
 import by.andd3dfx.templateapp.dto.ArticleUpdateDto;
+import by.andd3dfx.templateapp.dto.Cursor;
+import by.andd3dfx.templateapp.dto.CursorResponse;
 import by.andd3dfx.templateapp.exceptions.ArticleNotFoundException;
 import by.andd3dfx.templateapp.mappers.ArticleMapper;
 import by.andd3dfx.templateapp.persistence.dao.ArticleRepository;
 import by.andd3dfx.templateapp.persistence.entities.Article;
 import by.andd3dfx.templateapp.services.IArticleService;
+import by.andd3dfx.templateapp.util.CursorHelper;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class ArticleService implements IArticleService {
 
     private final ArticleRepository articleRepository;
     private final ArticleMapper articleMapper;
+    private final CursorHelper cursorHelper;
 
+    @Transactional
     @Override
     public ArticleDto create(ArticleDto articleDto) {
         Article entity = articleMapper.toArticle(articleDto);
@@ -32,6 +32,7 @@ public class ArticleService implements IArticleService {
         return articleMapper.toArticleDto(savedEntity);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public ArticleDto get(Long id) {
         return articleRepository.findById(id)
@@ -39,6 +40,7 @@ public class ArticleService implements IArticleService {
             .orElseThrow(() -> new ArticleNotFoundException(id));
     }
 
+    @Transactional
     @Override
     public void update(Long id, ArticleUpdateDto articleUpdateDto) {
         articleRepository.findById(id)
@@ -49,18 +51,22 @@ public class ArticleService implements IArticleService {
             }).orElseThrow(() -> new ArticleNotFoundException(id));
     }
 
+    @Transactional
     @Override
     public void delete(Long id) {
-        try {
-            articleRepository.deleteById(id);
-        } catch (EmptyResultDataAccessException ex) {
-            throw new ArticleNotFoundException(id);
-        }
+        articleRepository.deleteById(id);
     }
 
+    @Transactional(readOnly = true)
     @Override
-    public Page<ArticleDto> getAll(Pageable pageable) {
-        final Page<Article> pagedResult = articleRepository.findAll(pageable);
-        return pagedResult.map(articleMapper::toArticleDto);
+    public CursorResponse<ArticleDto> getByCursor(String encodedCursor, Integer pageSize) {
+        Cursor cursor = cursorHelper.decode(encodedCursor);
+        ArticleSearchCriteria criteria = cursorHelper.buildSearchCriteria(cursor, pageSize);
+        List<Article> articles = articleRepository.findByCriteria(criteria);
+
+        List<ArticleDto> articleDtos = articleMapper.toArticleDtoList(articles);
+        String prevLink = cursorHelper.buildPrevLink(articleDtos);
+        String nextLink = cursorHelper.buildNextLink(articleDtos);
+        return new CursorResponse<>(articleDtos, prevLink, nextLink);
     }
 }
