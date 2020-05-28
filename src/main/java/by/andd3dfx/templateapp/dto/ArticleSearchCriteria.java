@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ArticleSearchCriteria {
 
-    private String title;
-    private String timestamp;
-    private String summary;
+    private Long id;
+    private Integer pageSize = 50;
 }
