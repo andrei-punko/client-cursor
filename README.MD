@@ -1,5 +1,7 @@
 
-# Template for Spring Boot application
+# Example of Client Cursor API
+
+Based on [Template for Spring Boot application](https://github.com/andrei-punko/spring-boot-template)
 
 Includes web-server on port 9080 with `/articles` endpoint exposed.  
 Supports CRUD set of operations and R with pagination
@@ -27,22 +29,20 @@ http://localhost:9080/articles
 http://localhost:9080/swagger-ui.html
 
 ## Useful CURL commands:
-- New article addition:
-
+- New article addition:  
 `curl -i -H "Accept: application/json" -H "Content-Type: application/json" -d '{ "title": "Some tittle", "text": "Some text", "author": { "id": 1 } }' -X POST http://localhost:9080/articles`
 
-- Get existing article:
-
+- Get existing article:  
 `curl -i http://localhost:9080/articles/1`
 
-- Update existing article:
-
+- Update existing article:  
 `curl -i -H "Accept: application/json" -H "Content-Type: application/json" -d '{ "title": "Another tittle" }' -X PATCH http://localhost:9080/articles/2`
 
-- Get list of articles with pagination support:
+- Get list of articles using cursor:  
+`curl -i 'http://localhost:9080/articles?pageSize=2'`  
+Next and prev cursors placed in response: `{"data":[...], "prev":..., "next":...}`  
+Use cursor as a parameter in next requests:  
+`curl -i 'http://localhost:9080/articles?pageSize=2&cursor=PUT_NEXT_OR_PREV_CURSOR_HERE'`
 
-`curl -i 'http://localhost:9080/articles?size=2&page=4&sort=author.firstName,DESC'`
-
-- Deletion of article:
-
+- Deletion of article:  
 `curl -i -X DELETE http://localhost:9080/articles/1`
