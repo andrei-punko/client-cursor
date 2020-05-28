@@ -11,8 +11,4 @@ public class Cursor {
 
     private boolean isForward = true;
     private Long id;
-
-    public Cursor(Long id) {
-        this.id = id;
-    }
 }

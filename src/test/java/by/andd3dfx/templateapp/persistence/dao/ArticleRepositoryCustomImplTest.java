@@ -51,9 +51,9 @@ class ArticleRepositoryCustomImplTest {
     }
 
     @Test
-    public void findByCriteriaWithId() {
+    public void findByCriteriaWithIdFrom() {
         ArticleSearchCriteria criteria = new ArticleSearchCriteria();
-        criteria.setId(entity.getId());
+        criteria.setIdFrom(entity.getId());
 
         List<Article> result = repository.findByCriteria(criteria);
 
@@ -62,10 +62,21 @@ class ArticleRepositoryCustomImplTest {
     }
 
     @Test
+    public void findByCriteriaWithIdTo() {
+        ArticleSearchCriteria criteria = new ArticleSearchCriteria();
+        criteria.setIdTo(entity2.getId());
+
+        List<Article> result = repository.findByCriteria(criteria);
+
+        assertThat("Wrong records amount", result.size(), is(1));
+        assertThat("Not found some entity", result.containsAll(Arrays.asList(entity)), is(true));
+    }
+
+    @Test
     public void findByCriteriaWithPageSize() {
         ArticleSearchCriteria criteria = new ArticleSearchCriteria();
         criteria.setPageSize(2);
-        
+
         List<Article> result = repository.findByCriteria(criteria);
 
         assertThat("Wrong records amount", result.size(), is(2));

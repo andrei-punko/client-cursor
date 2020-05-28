@@ -35,7 +35,11 @@ public class CursorHelper {
     public ArticleSearchCriteria buildSearchCriteria(Cursor cursor, Integer pageSize) {
         ArticleSearchCriteria criteria = new ArticleSearchCriteria();
         if (cursor != null) {
-            criteria.setId(cursor.getId());
+            if (cursor.isForward()) {
+                criteria.setIdFrom(cursor.getId());
+            } else {
+                criteria.setIdTo(cursor.getId());
+            }
         }
         criteria.setPageSize(pageSize);
         return criteria;
@@ -47,7 +51,7 @@ public class CursorHelper {
         }
 
         Long firstId = articles.get(0).getId();
-        return encode(new Cursor(firstId));
+        return encode(new Cursor(false, firstId));
     }
 
     public String buildNextLink(List<ArticleDto> articles) {
@@ -56,6 +60,6 @@ public class CursorHelper {
         }
 
         Long lastId = articles.get(articles.size() - 1).getId();
-        return encode(new Cursor(lastId));
+        return encode(new Cursor(true, lastId));
     }
 }

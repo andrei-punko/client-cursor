@@ -1,6 +1,7 @@
 package by.andd3dfx.templateapp.util;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -41,14 +42,29 @@ class CursorHelperTest {
     }
 
     @Test
-    void buildSearchCriteria() {
+    void buildSearchCriteriaForForwardCursor() {
         final long id = 123L;
         final int pageSize = 35;
         Cursor cursor = buildCursor(id);
 
         ArticleSearchCriteria criteria = helper.buildSearchCriteria(cursor, pageSize);
 
-        assertThat(criteria.getId(), is(id));
+        assertThat(criteria.getIdFrom(), is(id));
+        assertThat(criteria.getIdTo(), nullValue());
+        assertThat(criteria.getPageSize(), is(pageSize));
+    }
+
+    @Test
+    void buildSearchCriteriaForBackwardCursor() {
+        final long id = 123L;
+        final int pageSize = 35;
+        Cursor cursor = buildCursor(id);
+        cursor.setForward(false);
+
+        ArticleSearchCriteria criteria = helper.buildSearchCriteria(cursor, pageSize);
+
+        assertThat(criteria.getIdFrom(), nullValue());
+        assertThat(criteria.getIdTo(), is(id));
         assertThat(criteria.getPageSize(), is(pageSize));
     }
 

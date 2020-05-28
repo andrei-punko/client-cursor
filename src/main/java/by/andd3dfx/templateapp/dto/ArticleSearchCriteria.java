@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ArticleSearchCriteria {
 
-    private Long id;
+    private Long idFrom;
+    private Long idTo;
     private Integer pageSize = 50;
 }
