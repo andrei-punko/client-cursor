@@ -42,7 +42,9 @@ http://localhost:9080/swagger-ui.html
 `curl -i 'http://localhost:9080/articles?pageSize=2'`  
 Next and prev cursors placed in response: `{"data":[...], "prev":..., "next":...}`  
 Use cursor as a parameter in next requests:  
-`curl -i 'http://localhost:9080/articles?pageSize=2&cursor=PUT_NEXT_OR_PREV_CURSOR_HERE'`
+`curl -i 'http://localhost:9080/articles?pageSize=2&cursor=PUT_NEXT_OR_PREV_CURSOR_HERE'`  
+If needed - add `sort` parameter to query, for example `sort=title`.  
+You need to pass it only in initial query, after that all info will be encoded into next/prev cursor and you need to pass cursor only (and `pageSize` if needed).
 
 - Deletion of article:  
 `curl -i -X DELETE http://localhost:9080/articles/1`

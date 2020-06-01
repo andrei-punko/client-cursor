@@ -22,12 +22,16 @@ public class ArticleRepositoryCustomImpl implements ArticleRepositoryCustom {
     private EntityManager em;
 
     /*
+        Check this page for details: https://itnan.ru/post.php?c=1&p=419083
+
+        * Query for forward cursor:
         SELECT * FROM items WHERE ...            -- apply search params
         AND ((fieldName = :nextCursor.fieldName AND sequentialId > :nextCursor.sequentialId) OR
         fieldName > :nextCursor.fieldName)
         ORDER BY :sortingFieldName, :sequentialId
         LIMIT :count
 
+        * Query for backward cursor:
         SELECT * from items WHERE ...            -- apply search params
         AND ((fieldName = :prevCursor.fieldName AND seq_id < :prevCursor.sequentialId) OR
         fieldName < :prevCursor.fieldName)
