@@ -30,10 +30,10 @@ public class ArticleRepositoryCustomImpl implements ArticleRepositoryCustom {
         final List<Predicate> predicates = buildPredicates(criteria, cb, plan);
         cq.where(predicates.toArray(new Predicate[0]));
 
-        if (criteria.isBackward()) {
-            final List<Order> orderList = Arrays.asList(cb.desc(plan.get("id")));
-            cq.orderBy(orderList);
-        }
+        final Order order = criteria.isForward() ?
+            cb.asc(plan.get("id")) :
+            cb.desc(plan.get("id"));
+        cq.orderBy(Arrays.asList(order));
 
         List<Article> result = em.createQuery(cq)
             .setMaxResults(criteria.getPageSize())
