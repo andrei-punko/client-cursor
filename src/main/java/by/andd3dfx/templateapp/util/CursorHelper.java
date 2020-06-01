@@ -79,13 +79,9 @@ public class CursorHelper {
 
         ArticleDto firstArticle = articles.get(0);
         Long firstId = firstArticle.getId();
-        if (sortFieldName == null) {
-            return encode(new Cursor(false, firstId, null, null));
-        }
-
-        String sortFieldValue = extractSortFieldValue(sortFieldName, firstArticle);
-        return encode(new Cursor(false, firstId, sortFieldName, sortFieldValue));
+        return encode(new Cursor(false, firstId, sortFieldName, extractSortFieldValue(sortFieldName, firstArticle)));
     }
+
 
     public String buildNextLink(List<ArticleDto> articles, Integer pageSize, String sortFieldName) {
         if (articles.isEmpty() || articles.size() < pageSize) {
@@ -94,15 +90,13 @@ public class CursorHelper {
 
         ArticleDto lastArticle = articles.get(articles.size() - 1);
         Long lastId = lastArticle.getId();
-        if (sortFieldName == null) {
-            return encode(new Cursor(true, lastId, null, null));
-        }
-
-        String sortFieldValue = extractSortFieldValue(sortFieldName, lastArticle);
-        return encode(new Cursor(true, lastId, sortFieldName, sortFieldValue));
+        return encode(new Cursor(true, lastId, sortFieldName, extractSortFieldValue(sortFieldName, lastArticle)));
     }
 
     private String extractSortFieldValue(String sortFieldName, ArticleDto firstArticle) {
+        if (sortFieldName == null) {
+            return null;
+        }
         try {
             Field field = firstArticle.getClass().getDeclaredField(sortFieldName);
             field.setAccessible(true);
