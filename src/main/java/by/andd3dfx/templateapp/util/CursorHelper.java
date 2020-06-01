@@ -73,9 +73,7 @@ public class CursorHelper {
             return encode(new Cursor(false, firstId, null, null));
         }
 
-        Field field = firstArticle.getClass().getDeclaredField(sortFieldName);
-        field.setAccessible(true);
-        String sortFieldValue = String.valueOf(field.get(firstArticle));
+        String sortFieldValue = extractSortFieldValue(sortFieldName, firstArticle);
         return encode(new Cursor(false, firstId, sortFieldName, sortFieldValue));
     }
 
@@ -91,9 +89,14 @@ public class CursorHelper {
             return encode(new Cursor(true, lastId, null, null));
         }
 
-        Field field = lastArticle.getClass().getDeclaredField(sortFieldName);
-        field.setAccessible(true);
-        String sortFieldValue = String.valueOf(field.get(lastArticle));
+        String sortFieldValue = extractSortFieldValue(sortFieldName, lastArticle);
         return encode(new Cursor(true, lastId, sortFieldName, sortFieldValue));
+    }
+
+    @SneakyThrows
+    private String extractSortFieldValue(String sortFieldName, ArticleDto firstArticle) {
+        Field field = firstArticle.getClass().getDeclaredField(sortFieldName);
+        field.setAccessible(true);
+        return String.valueOf(field.get(firstArticle));
     }
 }
