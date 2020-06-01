@@ -12,6 +12,7 @@ public class ArticleSearchCriteria {
     private boolean isForward = true;
     private Long id;
     private Integer pageSize = 50;
+    private String sort;
 
     public boolean isBackward() {
         return !isForward;

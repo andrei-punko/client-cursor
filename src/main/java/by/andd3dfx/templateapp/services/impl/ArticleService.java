@@ -59,9 +59,9 @@ public class ArticleService implements IArticleService {
 
     @Transactional(readOnly = true)
     @Override
-    public CursorResponse<ArticleDto> getByCursor(String encodedCursor, Integer pageSize) {
+    public CursorResponse<ArticleDto> getByCursor(String encodedCursor, Integer pageSize, String sort) {
         Cursor cursor = cursorHelper.decode(encodedCursor);
-        ArticleSearchCriteria criteria = cursorHelper.buildSearchCriteria(cursor, pageSize);
+        ArticleSearchCriteria criteria = cursorHelper.buildSearchCriteria(cursor, pageSize, sort);
         List<Article> articles = articleRepository.findByCriteria(criteria);
 
         List<ArticleDto> articleDtos = articleMapper.toArticleDtoList(articles);

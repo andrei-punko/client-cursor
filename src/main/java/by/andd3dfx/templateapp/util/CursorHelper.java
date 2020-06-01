@@ -32,13 +32,14 @@ public class CursorHelper {
         return objectMapper.readValue(bytes, Cursor.class);
     }
 
-    public ArticleSearchCriteria buildSearchCriteria(Cursor cursor, Integer pageSize) {
+    public ArticleSearchCriteria buildSearchCriteria(Cursor cursor, Integer pageSize, String sort) {
         ArticleSearchCriteria criteria = new ArticleSearchCriteria();
         if (cursor != null) {
             criteria.setForward(cursor.isForward());
             criteria.setId(cursor.getId());
         }
         criteria.setPageSize(pageSize);
+        criteria.setSort(sort);
         return criteria;
     }
 
