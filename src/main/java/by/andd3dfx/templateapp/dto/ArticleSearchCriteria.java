@@ -9,7 +9,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ArticleSearchCriteria {
 
-    private Long idFrom;
-    private Long idTo;
+    private boolean isForward = true;
+    private Long id;
     private Integer pageSize = 50;
+
+    public boolean isBackward() {
+        return !isForward;
+    }
 }

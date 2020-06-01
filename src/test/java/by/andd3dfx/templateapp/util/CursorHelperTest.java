@@ -49,8 +49,8 @@ class CursorHelperTest {
 
         ArticleSearchCriteria criteria = helper.buildSearchCriteria(cursor, pageSize);
 
-        assertThat(criteria.getIdFrom(), is(id));
-        assertThat(criteria.getIdTo(), nullValue());
+        assertThat(criteria.isForward(), is(true));
+        assertThat(criteria.getId(), is(id));
         assertThat(criteria.getPageSize(), is(pageSize));
     }
 
@@ -63,8 +63,8 @@ class CursorHelperTest {
 
         ArticleSearchCriteria criteria = helper.buildSearchCriteria(cursor, pageSize);
 
-        assertThat(criteria.getIdFrom(), nullValue());
-        assertThat(criteria.getIdTo(), is(id));
+        assertThat(criteria.isForward(), is(false));
+        assertThat(criteria.getId(), is(id));
         assertThat(criteria.getPageSize(), is(pageSize));
     }
 

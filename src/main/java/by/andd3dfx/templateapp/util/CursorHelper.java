@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class CursorHelper {
 
-    private ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @SneakyThrows
     public String encode(Cursor cursor) {
@@ -35,11 +35,8 @@ public class CursorHelper {
     public ArticleSearchCriteria buildSearchCriteria(Cursor cursor, Integer pageSize) {
         ArticleSearchCriteria criteria = new ArticleSearchCriteria();
         if (cursor != null) {
-            if (cursor.isForward()) {
-                criteria.setIdFrom(cursor.getId());
-            } else {
-                criteria.setIdTo(cursor.getId());
-            }
+            criteria.setForward(cursor.isForward());
+            criteria.setId(cursor.getId());
         }
         criteria.setPageSize(pageSize);
         return criteria;

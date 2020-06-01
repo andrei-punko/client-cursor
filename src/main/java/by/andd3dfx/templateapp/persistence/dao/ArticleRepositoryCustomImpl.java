@@ -30,7 +30,7 @@ public class ArticleRepositoryCustomImpl implements ArticleRepositoryCustom {
         final List<Predicate> predicates = buildPredicates(criteria, cb, plan);
         cq.where(predicates.toArray(new Predicate[0]));
 
-        if (criteria.getIdTo() != null) {
+        if (criteria.isBackward()) {
             final List<Order> orderList = Arrays.asList(cb.desc(plan.get("id")));
             cq.orderBy(orderList);
         }
@@ -39,7 +39,7 @@ public class ArticleRepositoryCustomImpl implements ArticleRepositoryCustom {
             .setMaxResults(criteria.getPageSize())
             .getResultList();
 
-        if (criteria.getIdTo() != null) {
+        if (criteria.isBackward()) {
             Collections.reverse(result);
         }
         return result;
@@ -47,11 +47,12 @@ public class ArticleRepositoryCustomImpl implements ArticleRepositoryCustom {
 
     private List<Predicate> buildPredicates(ArticleSearchCriteria criteria, CriteriaBuilder cb, Root plan) {
         List<Predicate> predicates = new ArrayList<>();
-        if (criteria.getIdFrom() != null) {
-            predicates.add(cb.greaterThan(plan.get("id"), criteria.getIdFrom()));
-        }
-        if (criteria.getIdTo() != null) {
-            predicates.add(cb.lessThan(plan.get("id"), criteria.getIdTo()));
+        if (criteria.getId() != null) {
+            if (criteria.isForward()) {
+                predicates.add(cb.greaterThan(plan.get("id"), criteria.getId()));
+            } else {
+                predicates.add(cb.lessThan(plan.get("id"), criteria.getId()));
+            }
         }
         return predicates;
     }
