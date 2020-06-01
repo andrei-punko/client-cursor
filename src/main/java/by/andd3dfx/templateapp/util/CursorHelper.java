@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class CursorHelper {
 
+    public static final String DEFAULT_ENCODING = "UTF-8";
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @SneakyThrows
@@ -21,7 +22,7 @@ public class CursorHelper {
             return null;
         }
         byte[] bytes = objectMapper.writeValueAsBytes(cursor);
-        return new String(Base64.getEncoder().encode(bytes));
+        return new String(Base64.getEncoder().encode(bytes), DEFAULT_ENCODING);
     }
 
     @SneakyThrows
@@ -29,7 +30,7 @@ public class CursorHelper {
         if (encodedCursor == null) {
             return null;
         }
-        byte[] bytes = Base64.getDecoder().decode(encodedCursor);
+        byte[] bytes = Base64.getDecoder().decode(encodedCursor.getBytes(DEFAULT_ENCODING));
         return objectMapper.readValue(bytes, Cursor.class);
     }
 
