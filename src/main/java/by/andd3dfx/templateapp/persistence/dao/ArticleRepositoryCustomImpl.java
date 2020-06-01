@@ -10,6 +10,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Order;
+import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -39,28 +40,34 @@ public class ArticleRepositoryCustomImpl implements ArticleRepositoryCustom {
         CriteriaQuery<Article> cq = cb.createQuery(Article.class);
         Root<Article> plan = cq.from(Article.class);
 
-        if (criteria.getSort() != null) {
-            final Expression<Boolean> predicate1 = cb.and(
-                cb.equal(plan.get(criteria.getSort()), criteria.getSortFieldValue()),
-                criteria.isForward() ?
-                    cb.greaterThan(plan.get("id"), criteria.getId()) :
-                    cb.lessThan(plan.get("id"), criteria.getId())
-            );
-            final Expression<Boolean> predicate2 = criteria.isForward() ?
-                cb.greaterThan(plan.get(criteria.getSort()), criteria.getSortFieldValue()) :
-                cb.lessThan(plan.get(criteria.getSort()), criteria.getSortFieldValue());
-            cq.where(cb.or(predicate1, predicate2));
+        String sortFieldName = criteria.getSort();
+        if (sortFieldName != null) {
+            String sortFieldValue = criteria.getSortFieldValue();
+            if (sortFieldValue == null) {
+                throw new IllegalArgumentException("Both 'sort' and 'sortFieldValue' fields should be populated!");
+            }
+
+            if (criteria.getId() != null) {
+                final Expression<Boolean> predicate1 = cb.and(
+                    cb.equal(plan.get(sortFieldName), sortFieldValue),
+                    buildIdPredicate(criteria, cb, plan)
+                );
+                final Expression<Boolean> predicate2 = buildSortFieldPredicate(criteria, cb, plan, sortFieldName, sortFieldValue);
+                cq.where(cb.or(predicate1, predicate2));
+            } else {
+                final Expression<Boolean> predicate1 = cb.equal(plan.get(sortFieldName), sortFieldValue);
+                final Expression<Boolean> predicate2 = buildSortFieldPredicate(criteria, cb, plan, sortFieldName, sortFieldValue);
+                cq.where(cb.or(predicate1, predicate2));
+            }
         } else if (criteria.getId() != null) {
-            cq.where(criteria.isForward() ?
-                cb.greaterThan(plan.get("id"), criteria.getId()) :
-                cb.lessThan(plan.get("id"), criteria.getId()));
+            cq.where(buildIdPredicate(criteria, cb, plan));
         }
 
         final List<Order> orders = new ArrayList<>();
-        if (criteria.getSort() != null) {
+        if (sortFieldName != null) {
             final Order orderBySortingField = criteria.isForward() ?
-                cb.asc(plan.get(criteria.getSort())) :
-                cb.desc(plan.get(criteria.getSort()));
+                cb.asc(plan.get(sortFieldName)) :
+                cb.desc(plan.get(sortFieldName));
             orders.add(orderBySortingField);
         }
 
@@ -78,5 +85,18 @@ public class ArticleRepositoryCustomImpl implements ArticleRepositoryCustom {
             Collections.reverse(result);
         }
         return result;
+    }
+
+    private Predicate buildSortFieldPredicate(ArticleSearchCriteria criteria, CriteriaBuilder cb, Root<Article> plan, String sortFieldName,
+        String sortFieldValue) {
+        return criteria.isForward() ?
+            cb.greaterThan(plan.get(sortFieldName), sortFieldValue) :
+            cb.lessThan(plan.get(sortFieldName), sortFieldValue);
+    }
+
+    private Predicate buildIdPredicate(ArticleSearchCriteria criteria, CriteriaBuilder cb, Root<Article> plan) {
+        return criteria.isForward() ?
+            cb.greaterThan(plan.get("id"), criteria.getId()) :
+            cb.lessThan(plan.get("id"), criteria.getId());
     }
 }
