@@ -66,7 +66,7 @@ public class ArticleService implements IArticleService {
 
         List<ArticleDto> articleDtos = articleMapper.toArticleDtoList(articles);
         String prevLink = cursorHelper.buildPrevLink(articleDtos, sort);
-        String nextLink = cursorHelper.buildNextLink(articleDtos, sort);
+        String nextLink = cursorHelper.buildNextLink(articleDtos, pageSize, sort);
         return new CursorResponse<>(articleDtos, prevLink, nextLink);
     }
 }

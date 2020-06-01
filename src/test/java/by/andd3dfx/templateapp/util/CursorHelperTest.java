@@ -143,20 +143,42 @@ class CursorHelperTest {
 
     @Test
     void buildNextLink() {
+        Integer pageSize = 2;
         List<ArticleDto> articles = Arrays.asList(buildArticle(123L), buildArticle(125L));
 
-        String nextLink = helper.buildNextLink(articles, null);
+        String nextLink = helper.buildNextLink(articles, pageSize, null);
 
         assertThat(new CursorHelper().decode(nextLink).getId(), is(125L));
     }
 
     @Test
     void buildNextLinkForTitle() {
+        Integer pageSize = 2;
         List<ArticleDto> articles = Arrays.asList(buildArticle(123L), buildArticle(125L));
 
-        String nextLink = helper.buildNextLink(articles, "title");
+        String nextLink = helper.buildNextLink(articles, pageSize, "title");
 
         assertThat(new CursorHelper().decode(nextLink).getId(), is(125L));
+    }
+
+    @Test
+    void buildNextLinkWhenNoRecordsInResult() {
+        Integer pageSize = 50;
+        List<ArticleDto> articles = Arrays.asList();
+
+        String nextLink = helper.buildNextLink(articles, pageSize, null);
+
+        assertThat(nextLink, nullValue());
+    }
+
+    @Test
+    void buildNextLinkWhenRecordsAmountLessThanPageSize() {
+        Integer pageSize = 50;
+        List<ArticleDto> articles = Arrays.asList(buildArticle(123L), buildArticle(125L));
+
+        String nextLink = helper.buildNextLink(articles, pageSize, null);
+
+        assertThat(nextLink, nullValue());
     }
 
     private ArticleDto buildArticle(long id) {

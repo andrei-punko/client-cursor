@@ -80,8 +80,8 @@ public class CursorHelper {
     }
 
     @SneakyThrows
-    public String buildNextLink(List<ArticleDto> articles, String sortFieldName) {
-        if (articles.isEmpty()) {
+    public String buildNextLink(List<ArticleDto> articles, Integer pageSize, String sortFieldName) {
+        if (articles.isEmpty() || articles.size() < pageSize) {
             return null;
         }
 
