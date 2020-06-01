@@ -39,12 +39,12 @@ http://localhost:9080/swagger-ui.html
 `curl -i -H "Accept: application/json" -H "Content-Type: application/json" -d '{ "title": "Another tittle" }' -X PATCH http://localhost:9080/articles/2`
 
 - Get list of articles using cursor:  
-`curl -i 'http://localhost:9080/articles?pageSize=2'`  
+`curl -i 'http://localhost:9080/articles?size=2'`  
 Next and prev cursors placed in response: `{"data":[...], "prev":..., "next":...}`  
 Use cursor as a parameter in next requests:  
-`curl -i 'http://localhost:9080/articles?pageSize=2&cursor=PUT_NEXT_OR_PREV_CURSOR_HERE'`  
+`curl -i 'http://localhost:9080/articles?size=2&cursor=PUT_NEXT_OR_PREV_CURSOR_HERE'`  
 If needed - add `sort` parameter to query, for example `sort=title`.  
-You need to pass it only in initial query, after that all info will be encoded into next/prev cursor and you need to pass cursor only (and `pageSize` if needed).
+You need to pass it only in initial query, after that all info will be encoded into next/prev cursor and you need to pass cursor only (and `size` if needed).
 
 - Deletion of article:  
 `curl -i -X DELETE http://localhost:9080/articles/1`
