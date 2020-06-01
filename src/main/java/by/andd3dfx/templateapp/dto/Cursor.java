@@ -11,4 +11,6 @@ public class Cursor {
 
     private boolean isForward = true;
     private Long id;
+    private String sortFieldName;
+    private String sortFieldValue;
 }

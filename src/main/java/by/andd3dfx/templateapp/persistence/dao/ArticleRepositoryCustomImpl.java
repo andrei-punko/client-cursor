@@ -43,21 +43,22 @@ public class ArticleRepositoryCustomImpl implements ArticleRepositoryCustom {
         String sortFieldName = criteria.getSort();
         if (sortFieldName != null) {
             String sortFieldValue = criteria.getSortFieldValue();
-            if (sortFieldValue == null) {
-                throw new IllegalArgumentException("Both 'sort' and 'sortFieldValue' fields should be populated!");
-            }
 
-            if (criteria.getId() != null) {
-                final Expression<Boolean> predicate1 = cb.and(
-                    cb.equal(plan.get(sortFieldName), sortFieldValue),
-                    buildIdPredicate(criteria, cb, plan)
-                );
-                final Expression<Boolean> predicate2 = buildSortFieldPredicate(criteria, cb, plan, sortFieldName, sortFieldValue);
-                cq.where(cb.or(predicate1, predicate2));
-            } else {
-                final Expression<Boolean> predicate1 = cb.equal(plan.get(sortFieldName), sortFieldValue);
-                final Expression<Boolean> predicate2 = buildSortFieldPredicate(criteria, cb, plan, sortFieldName, sortFieldValue);
-                cq.where(cb.or(predicate1, predicate2));
+            if (sortFieldValue != null) {
+                if (criteria.getId() != null) {
+                    final Expression<Boolean> predicate1 = cb.and(
+                        cb.equal(plan.get(sortFieldName), sortFieldValue),
+                        buildIdPredicate(criteria, cb, plan)
+                    );
+                    final Expression<Boolean> predicate2 = buildSortFieldPredicate(criteria, cb, plan, sortFieldName, sortFieldValue);
+                    cq.where(cb.or(predicate1, predicate2));
+                } else {
+                    final Expression<Boolean> predicate1 = cb.equal(plan.get(sortFieldName), sortFieldValue);
+                    final Expression<Boolean> predicate2 = buildSortFieldPredicate(criteria, cb, plan, sortFieldName, sortFieldValue);
+                    cq.where(cb.or(predicate1, predicate2));
+                }
+            } else if (criteria.getId() != null) {
+                cq.where(buildIdPredicate(criteria, cb, plan));
             }
         } else if (criteria.getId() != null) {
             cq.where(buildIdPredicate(criteria, cb, plan));

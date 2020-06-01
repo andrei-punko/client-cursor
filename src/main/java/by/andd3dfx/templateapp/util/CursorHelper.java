@@ -4,6 +4,7 @@ import by.andd3dfx.templateapp.dto.ArticleDto;
 import by.andd3dfx.templateapp.dto.ArticleSearchCriteria;
 import by.andd3dfx.templateapp.dto.Cursor;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.lang.reflect.Field;
 import java.util.Base64;
 import java.util.List;
 import lombok.SneakyThrows;
@@ -37,27 +38,46 @@ public class CursorHelper {
         if (cursor != null) {
             criteria.setForward(cursor.isForward());
             criteria.setId(cursor.getId());
+            criteria.setSort(cursor.getSortFieldName());
+            criteria.setSortFieldValue(cursor.getSortFieldValue());
+        } else {
+            criteria.setSort(sort);
         }
         criteria.setPageSize(pageSize);
-        criteria.setSort(sort);
         return criteria;
     }
 
-    public String buildPrevLink(List<ArticleDto> articles) {
+    @SneakyThrows
+    public String buildPrevLink(List<ArticleDto> articles, String sortFieldName) {
         if (articles.isEmpty()) {
             return null;
         }
 
-        Long firstId = articles.get(0).getId();
-        return encode(new Cursor(false, firstId));
+        ArticleDto firstArticle = articles.get(0);
+        Long firstId = firstArticle.getId();
+        if (sortFieldName == null) {
+            return encode(new Cursor(false, firstId, null, null));
+        }
+
+        Field field = firstArticle.getClass().getDeclaredField(sortFieldName);
+        String sortFieldValue = String.valueOf(field.get(firstArticle));
+        return encode(new Cursor(false, firstId, sortFieldName, sortFieldValue));
     }
 
-    public String buildNextLink(List<ArticleDto> articles) {
+    @SneakyThrows
+    public String buildNextLink(List<ArticleDto> articles, String sortFieldName) {
         if (articles.isEmpty()) {
             return null;
         }
 
-        Long lastId = articles.get(articles.size() - 1).getId();
-        return encode(new Cursor(true, lastId));
+        ArticleDto lastArticle = articles.get(articles.size() - 1);
+        Long lastId = lastArticle.getId();
+        if (sortFieldName == null) {
+            return encode(new Cursor(true, lastId, null, null));
+        }
+
+        Field field = lastArticle.getClass().getDeclaredField(sortFieldName);
+        String sortFieldValue = String.valueOf(field.get(lastArticle));
+        return encode(new Cursor(true, lastId, sortFieldName, sortFieldValue));
     }
 }

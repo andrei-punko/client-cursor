@@ -30,9 +30,9 @@ class ArticleRepositoryCustomImplTest {
     @BeforeEach
     public void setup() {
         repository.deleteAll();
-        entity = buildArticle("Ivan", "HD", LocalDateTime.parse("2010-12-03T10:15:30"));
+        entity = buildArticle("Ivan M.", "HD", LocalDateTime.parse("2010-12-03T10:15:30"));
         entity2 = buildArticle("Vasily", "HD", LocalDateTime.parse("2011-12-03T10:15:30"));
-        entity3 = buildArticle("Ivan", "4K", LocalDateTime.parse("2012-12-03T10:15:30"));
+        entity3 = buildArticle("Ivan A.", "4K", LocalDateTime.parse("2012-12-03T10:15:30"));
         repository.saveAll(Arrays.asList(entity, entity2, entity3));
     }
 
@@ -52,7 +52,61 @@ class ArticleRepositoryCustomImplTest {
     }
 
     @Test
-    public void findByCriteriaWithIdFrom() {
+    public void findByCriteriaWithSort() {
+        ArticleSearchCriteria criteria = new ArticleSearchCriteria();
+        criteria.setSort("title");
+
+        List<Article> result = repository.findByCriteria(criteria);
+
+        assertThat("Wrong records amount", result.size(), is(3));
+        assertThat("Wrong records[0] value", result.get(0), is(entity3));
+        assertThat("Wrong records[1] value", result.get(1), is(entity));
+        assertThat("Wrong records[2] value", result.get(2), is(entity2));
+    }
+
+    @Test
+    public void findByCriteriaWithSortNPageSize() {
+        ArticleSearchCriteria criteria = new ArticleSearchCriteria();
+        criteria.setSort("title");
+        criteria.setPageSize(2);
+
+        List<Article> result = repository.findByCriteria(criteria);
+
+        assertThat("Wrong records amount", result.size(), is(2));
+        assertThat("Wrong records[0] value", result.get(0), is(entity3));
+        assertThat("Wrong records[1] value", result.get(1), is(entity));
+    }
+
+    @Test
+    public void findByCriteriaWithSortNIdNPageSize() {
+        ArticleSearchCriteria criteria = new ArticleSearchCriteria();
+        criteria.setSort("title");
+        criteria.setId(entity3.getId());
+        criteria.setSortFieldValue(entity3.getTitle());
+        criteria.setPageSize(1);
+
+        List<Article> result = repository.findByCriteria(criteria);
+
+        assertThat("Wrong records amount", result.size(), is(1));
+        assertThat("Wrong records[0] value", result.get(0), is(entity));
+    }
+
+    @Test
+    public void findByCriteriaWithSortNId() {
+        ArticleSearchCriteria criteria = new ArticleSearchCriteria();
+        criteria.setSort("title");
+        criteria.setId(entity3.getId());
+        criteria.setSortFieldValue(entity3.getTitle());
+
+        List<Article> result = repository.findByCriteria(criteria);
+
+        assertThat("Wrong records amount", result.size(), is(2));
+        assertThat("Wrong records[0] value", result.get(0), is(entity));
+        assertThat("Wrong records[1] value", result.get(1), is(entity2));
+    }
+
+    @Test
+    public void findByCriteriaWithId() {
         ArticleSearchCriteria criteria = new ArticleSearchCriteria();
         criteria.setForward(true);
         criteria.setId(entity.getId());
@@ -64,7 +118,7 @@ class ArticleRepositoryCustomImplTest {
     }
 
     @Test
-    public void findByCriteriaWithIdTo() {
+    public void findByCriteriaWithIdNBackwardCursor() {
         ArticleSearchCriteria criteria = new ArticleSearchCriteria();
         criteria.setForward(false);
         criteria.setId(entity2.getId());
