@@ -34,6 +34,8 @@ public class CursorHelper {
     }
 
     public ArticleSearchCriteria buildSearchCriteria(Cursor cursor, Integer pageSize, String sort) {
+        validateIncomingParams(cursor, pageSize, sort);
+
         ArticleSearchCriteria criteria = new ArticleSearchCriteria();
         if (cursor != null) {
             criteria.setForward(cursor.isForward());
@@ -45,6 +47,18 @@ public class CursorHelper {
         }
         criteria.setPageSize(pageSize);
         return criteria;
+    }
+
+    private void validateIncomingParams(Cursor cursor, Integer pageSize, String sort) {
+        if (cursor != null) {
+            if (sort != null) {
+                throw new IllegalArgumentException("Sort field name should be set in param OR inside the cursor");
+            }
+
+            if (cursor.getSortFieldName() != null && cursor.getSortFieldValue() == null) {
+                throw new IllegalArgumentException("Sort field name & value should be populated inside the cursor at the same time");
+            }
+        }
     }
 
     @SneakyThrows

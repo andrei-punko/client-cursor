@@ -1,9 +1,11 @@
 package by.andd3dfx.templateapp.util;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import by.andd3dfx.templateapp.dto.ArticleDto;
 import by.andd3dfx.templateapp.dto.ArticleSearchCriteria;
@@ -41,34 +43,74 @@ class CursorHelperTest {
     }
 
     @Test
-    void buildSearchCriteriaForForwardCursor() {
+    void buildSearchCriteriaForForwardCursorWhenSortEncodedInCursor() {
         final long id = 123L;
         final int pageSize = 35;
-        final String sort = "title";
-        Cursor cursor = buildCursor(id);
+        Cursor cursor = new Cursor(true, id, "title", "Some value");
 
-        ArticleSearchCriteria criteria = helper.buildSearchCriteria(cursor, pageSize, sort);
+        ArticleSearchCriteria criteria = helper.buildSearchCriteria(cursor, pageSize, null);
 
         assertThat(criteria.isForward(), is(true));
         assertThat(criteria.getId(), is(id));
         assertThat(criteria.getPageSize(), is(pageSize));
-        assertThat(criteria.getSort(), is(sort));
+        assertThat(criteria.getSort(), is(cursor.getSortFieldName()));
+        assertThat(criteria.getSortFieldValue(), is(cursor.getSortFieldValue()));
+    }
+
+    @Test
+    void buildSearchCriteriaForForwardCursorWhenSortPassedAsParam() {
+        final int pageSize = 35;
+        final String sortFieldName = "title";
+
+        ArticleSearchCriteria criteria = helper.buildSearchCriteria(null, pageSize, sortFieldName);
+
+        assertThat(criteria.isForward(), is(true));
+        assertThat(criteria.getPageSize(), is(pageSize));
+        assertThat(criteria.getSort(), is(sortFieldName));
+        assertThat(criteria.getSortFieldValue(), nullValue());
     }
 
     @Test
     void buildSearchCriteriaForBackwardCursor() {
         final long id = 123L;
         final int pageSize = 35;
-        final String sort = "title";
-        Cursor cursor = buildCursor(id);
-        cursor.setForward(false);
+        Cursor cursor = new Cursor(false, id, "title", "Some value");
 
-        ArticleSearchCriteria criteria = helper.buildSearchCriteria(cursor, pageSize, sort);
+        ArticleSearchCriteria criteria = helper.buildSearchCriteria(cursor, pageSize, null);
 
         assertThat(criteria.isForward(), is(false));
         assertThat(criteria.getId(), is(id));
         assertThat(criteria.getPageSize(), is(pageSize));
-        assertThat(criteria.getSort(), is(sort));
+        assertThat(criteria.getSort(), is(cursor.getSortFieldName()));
+        assertThat(criteria.getSortFieldValue(), is(cursor.getSortFieldValue()));
+    }
+
+    @Test
+    void buildSearchCriteriaWhenSortPopulatedAtTwoPlaces() {
+        final long id = 123L;
+        final int pageSize = 35;
+        Cursor cursor = new Cursor(true, id, "title", "Some value");
+
+        try {
+            helper.buildSearchCriteria(cursor, pageSize, "title");
+            fail("Exception should be thrown");
+        } catch (IllegalArgumentException iae) {
+            assertThat(iae.getMessage(), is("Sort field name should be set in param OR inside the cursor"));
+        }
+    }
+
+    @Test
+    void buildSearchCriteriaWhenSortNamePopulatedButValueNot() {
+        final long id = 123L;
+        final int pageSize = 35;
+        Cursor cursor = new Cursor(true, id, "title", null);
+
+        try {
+            helper.buildSearchCriteria(cursor, pageSize, null);
+            fail("Exception should be thrown");
+        } catch (IllegalArgumentException iae) {
+            assertThat(iae.getMessage(), is("Sort field name & value should be populated inside the cursor at the same time"));
+        }
     }
 
     @Test
