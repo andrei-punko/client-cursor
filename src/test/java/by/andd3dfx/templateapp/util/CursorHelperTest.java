@@ -3,6 +3,7 @@ package by.andd3dfx.templateapp.util;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.lessThan;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -40,6 +41,15 @@ class CursorHelperTest {
         Cursor decodedCursor = helper.decode(encodedString);
 
         assertTrue(cursor.equals(decodedCursor));
+    }
+
+    @Test
+    void encodeLengthRestriction() {
+        final Cursor cursor = buildCursor(123L);
+
+        String encodedString = helper.encode(cursor);
+
+        assertThat(encodedString.length(), lessThan(105));
     }
 
     @Test
@@ -164,6 +174,9 @@ class CursorHelperTest {
     private Cursor buildCursor(Long id) {
         Cursor cursor = new Cursor();
         cursor.setId(id);
+        cursor.setForward(true);
+        cursor.setSortFieldName("title");
+        cursor.setSortFieldValue("Слова подвижнические");
         return cursor;
     }
 }
