@@ -14,6 +14,7 @@ import by.andd3dfx.templateapp.dto.Cursor;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class CursorHelperTest {
@@ -41,6 +42,13 @@ class CursorHelperTest {
         Cursor decodedCursor = helper.decode(encodedString);
 
         assertTrue(cursor.equals(decodedCursor));
+    }
+
+    @Test
+    void decodeForWrongString() {
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            helper.decode("asdf jkl;");
+        });
     }
 
     @Test

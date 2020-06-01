@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.lang.reflect.Field;
 import java.util.Base64;
 import java.util.List;
-import lombok.SneakyThrows;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -16,22 +15,28 @@ public class CursorHelper {
     public static final String DEFAULT_ENCODING = "UTF-8";
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    @SneakyThrows
     public String encode(Cursor cursor) {
         if (cursor == null) {
             return null;
         }
-        byte[] bytes = objectMapper.writeValueAsBytes(cursor);
-        return new String(Base64.getEncoder().encode(bytes), DEFAULT_ENCODING);
+        try {
+            byte[] bytes = objectMapper.writeValueAsBytes(cursor);
+            return new String(Base64.getEncoder().encode(bytes), DEFAULT_ENCODING);
+        } catch (Exception ex) {
+            throw new IllegalArgumentException("Error during encoding", ex);
+        }
     }
 
-    @SneakyThrows
     public Cursor decode(String encodedCursor) {
         if (encodedCursor == null) {
             return null;
         }
-        byte[] bytes = Base64.getDecoder().decode(encodedCursor.getBytes(DEFAULT_ENCODING));
-        return objectMapper.readValue(bytes, Cursor.class);
+        try {
+            byte[] bytes = Base64.getDecoder().decode(encodedCursor.getBytes(DEFAULT_ENCODING));
+            return objectMapper.readValue(bytes, Cursor.class);
+        } catch (Exception ex) {
+            throw new IllegalArgumentException("Error during decoding", ex);
+        }
     }
 
     public ArticleSearchCriteria buildSearchCriteria(Cursor cursor, Integer pageSize, String sortFieldName) {
@@ -67,7 +72,6 @@ public class CursorHelper {
         }
     }
 
-    @SneakyThrows
     public String buildPrevLink(List<ArticleDto> articles, String explicitSort, String sortFieldName) {
         if (articles.isEmpty() || explicitSort != null) {
             return null;
@@ -83,7 +87,6 @@ public class CursorHelper {
         return encode(new Cursor(false, firstId, sortFieldName, sortFieldValue));
     }
 
-    @SneakyThrows
     public String buildNextLink(List<ArticleDto> articles, Integer pageSize, String sortFieldName) {
         if (articles.isEmpty() || articles.size() < pageSize) {
             return null;
@@ -99,10 +102,13 @@ public class CursorHelper {
         return encode(new Cursor(true, lastId, sortFieldName, sortFieldValue));
     }
 
-    @SneakyThrows
     private String extractSortFieldValue(String sortFieldName, ArticleDto firstArticle) {
-        Field field = firstArticle.getClass().getDeclaredField(sortFieldName);
-        field.setAccessible(true);
-        return String.valueOf(field.get(firstArticle));
+        try {
+            Field field = firstArticle.getClass().getDeclaredField(sortFieldName);
+            field.setAccessible(true);
+            return String.valueOf(field.get(firstArticle));
+        } catch (Exception ex) {
+            throw new IllegalArgumentException("Error during sort field value extraction", ex);
+        }
     }
 }
