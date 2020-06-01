@@ -74,6 +74,7 @@ public class CursorHelper {
         }
 
         Field field = firstArticle.getClass().getDeclaredField(sortFieldName);
+        field.setAccessible(true);
         String sortFieldValue = String.valueOf(field.get(firstArticle));
         return encode(new Cursor(false, firstId, sortFieldName, sortFieldValue));
     }
@@ -91,6 +92,7 @@ public class CursorHelper {
         }
 
         Field field = lastArticle.getClass().getDeclaredField(sortFieldName);
+        field.setAccessible(true);
         String sortFieldValue = String.valueOf(field.get(lastArticle));
         return encode(new Cursor(true, lastId, sortFieldName, sortFieldValue));
     }

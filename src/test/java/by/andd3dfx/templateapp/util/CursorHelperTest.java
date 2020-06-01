@@ -123,10 +123,28 @@ class CursorHelperTest {
     }
 
     @Test
+    void buildPrevLinkForTitle() {
+        List<ArticleDto> articles = Arrays.asList(buildArticle(123L), buildArticle(125L));
+
+        String prevLink = helper.buildPrevLink(articles, "title");
+
+        assertThat(new CursorHelper().decode(prevLink).getId(), is(123L));
+    }
+
+    @Test
     void buildNextLink() {
         List<ArticleDto> articles = Arrays.asList(buildArticle(123L), buildArticle(125L));
 
         String nextLink = helper.buildNextLink(articles, null);
+
+        assertThat(new CursorHelper().decode(nextLink).getId(), is(125L));
+    }
+
+    @Test
+    void buildNextLinkForTitle() {
+        List<ArticleDto> articles = Arrays.asList(buildArticle(123L), buildArticle(125L));
+
+        String nextLink = helper.buildNextLink(articles, "title");
 
         assertThat(new CursorHelper().decode(nextLink).getId(), is(125L));
     }
