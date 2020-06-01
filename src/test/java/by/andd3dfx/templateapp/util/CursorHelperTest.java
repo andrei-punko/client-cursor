@@ -127,16 +127,25 @@ class CursorHelperTest {
     void buildPrevLink() {
         List<ArticleDto> articles = Arrays.asList(buildArticle(123L), buildArticle(125L));
 
-        String prevLink = helper.buildPrevLink(articles, null);
+        String prevLink = helper.buildPrevLink(articles, null, null);
 
         assertThat(new CursorHelper().decode(prevLink).getId(), is(123L));
+    }
+
+    @Test
+    void buildPrevLinkWhenExplicitSortPresents() {
+        List<ArticleDto> articles = Arrays.asList(buildArticle(123L), buildArticle(125L));
+
+        String prevLink = helper.buildPrevLink(articles, "title", null);
+
+        assertThat(prevLink, nullValue());
     }
 
     @Test
     void buildPrevLinkForTitle() {
         List<ArticleDto> articles = Arrays.asList(buildArticle(123L), buildArticle(125L));
 
-        String prevLink = helper.buildPrevLink(articles, "title");
+        String prevLink = helper.buildPrevLink(articles, null, "title");
 
         assertThat(new CursorHelper().decode(prevLink).getId(), is(123L));
     }

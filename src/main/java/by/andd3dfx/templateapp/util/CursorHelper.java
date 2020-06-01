@@ -33,25 +33,30 @@ public class CursorHelper {
         return objectMapper.readValue(bytes, Cursor.class);
     }
 
-    public ArticleSearchCriteria buildSearchCriteria(Cursor cursor, Integer pageSize, String sort) {
-        validateIncomingParams(cursor, pageSize, sort);
+    public ArticleSearchCriteria buildSearchCriteria(Cursor cursor, Integer pageSize, String sortFieldName) {
+        validateIncomingParams(cursor, pageSize, sortFieldName);
 
         ArticleSearchCriteria criteria = new ArticleSearchCriteria();
         if (cursor != null) {
             criteria.setForward(cursor.isForward());
             criteria.setId(cursor.getId());
-            criteria.setSort(cursor.getSortFieldName());
             criteria.setSortFieldValue(cursor.getSortFieldValue());
-        } else {
-            criteria.setSort(sort);
         }
+        criteria.setSort(resolveSort(cursor, sortFieldName));
         criteria.setPageSize(pageSize);
         return criteria;
     }
 
-    private void validateIncomingParams(Cursor cursor, Integer pageSize, String sort) {
+    private String resolveSort(Cursor cursor, String explicitSortFieldName) {
+        if (cursor == null) {
+            return explicitSortFieldName;
+        }
+        return cursor.getSortFieldName();
+    }
+
+    private void validateIncomingParams(Cursor cursor, Integer pageSize, String sortFieldName) {
         if (cursor != null) {
-            if (sort != null) {
+            if (sortFieldName != null) {
                 throw new IllegalArgumentException("Sort field name should be set in param OR inside the cursor");
             }
 
@@ -62,8 +67,8 @@ public class CursorHelper {
     }
 
     @SneakyThrows
-    public String buildPrevLink(List<ArticleDto> articles, String sortFieldName) {
-        if (articles.isEmpty()) {
+    public String buildPrevLink(List<ArticleDto> articles, String explicitSort, String sortFieldName) {
+        if (articles.isEmpty() || explicitSort != null) {
             return null;
         }
 
