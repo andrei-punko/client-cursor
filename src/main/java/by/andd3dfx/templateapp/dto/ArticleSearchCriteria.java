@@ -1,5 +1,7 @@
 package by.andd3dfx.templateapp.dto;
 
+import static by.andd3dfx.templateapp.dto.ArticleSearchCriteria.SortOrder.ASC;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,10 +15,15 @@ public class ArticleSearchCriteria {
     private Long id;
     private Integer pageSize = 50;
 
-    private String sort;
+    private String sortFieldName;
     private String sortFieldValue;
+    private SortOrder sortOrder = ASC;
 
     public boolean isBackward() {
         return !isForward;
+    }
+
+    public enum SortOrder {
+        ASC, DESC
     }
 }

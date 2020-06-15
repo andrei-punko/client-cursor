@@ -57,21 +57,21 @@ class CursorHelperTest {
 
         String encodedString = helper.encode(cursor);
 
-        assertThat(encodedString.length(), lessThan(105));
+        assertThat(encodedString.length(), lessThan(120));
     }
 
     @Test
     void buildSearchCriteriaForForwardCursorWhenSortEncodedInCursor() {
         final long id = 123L;
         final int pageSize = 35;
-        Cursor cursor = new Cursor(true, id, "title", "Some value");
+        Cursor cursor = new Cursor(true, id, "title", "Some value", "ASC");
 
-        ArticleSearchCriteria criteria = helper.buildSearchCriteria(cursor, pageSize, null);
+        ArticleSearchCriteria criteria = helper.buildSearchCriteria(cursor, pageSize, null, "ASC");
 
         assertThat(criteria.isForward(), is(true));
         assertThat(criteria.getId(), is(id));
         assertThat(criteria.getPageSize(), is(pageSize));
-        assertThat(criteria.getSort(), is(cursor.getSortFieldName()));
+        assertThat(criteria.getSortFieldName(), is(cursor.getSortFieldName()));
         assertThat(criteria.getSortFieldValue(), is(cursor.getSortFieldValue()));
     }
 
@@ -80,11 +80,11 @@ class CursorHelperTest {
         final int pageSize = 35;
         final String sortFieldName = "title";
 
-        ArticleSearchCriteria criteria = helper.buildSearchCriteria(null, pageSize, sortFieldName);
+        ArticleSearchCriteria criteria = helper.buildSearchCriteria(null, pageSize, sortFieldName, "ASC");
 
         assertThat(criteria.isForward(), is(true));
         assertThat(criteria.getPageSize(), is(pageSize));
-        assertThat(criteria.getSort(), is(sortFieldName));
+        assertThat(criteria.getSortFieldName(), is(sortFieldName));
         assertThat(criteria.getSortFieldValue(), nullValue());
     }
 
@@ -92,14 +92,14 @@ class CursorHelperTest {
     void buildSearchCriteriaForBackwardCursor() {
         final long id = 123L;
         final int pageSize = 35;
-        Cursor cursor = new Cursor(false, id, "title", "Some value");
+        Cursor cursor = new Cursor(false, id, "title","Some value", "ASC");
 
-        ArticleSearchCriteria criteria = helper.buildSearchCriteria(cursor, pageSize, null);
+        ArticleSearchCriteria criteria = helper.buildSearchCriteria(cursor, pageSize, null, "ASC");
 
         assertThat(criteria.isForward(), is(false));
         assertThat(criteria.getId(), is(id));
         assertThat(criteria.getPageSize(), is(pageSize));
-        assertThat(criteria.getSort(), is(cursor.getSortFieldName()));
+        assertThat(criteria.getSortFieldName(), is(cursor.getSortFieldName()));
         assertThat(criteria.getSortFieldValue(), is(cursor.getSortFieldValue()));
     }
 
@@ -107,10 +107,10 @@ class CursorHelperTest {
     void buildSearchCriteriaWhenSortPopulatedAtTwoPlaces() {
         final long id = 123L;
         final int pageSize = 35;
-        Cursor cursor = new Cursor(true, id, "title", "Some value");
+        Cursor cursor = new Cursor(true, id, "title", "Some value", "ASC");
 
         try {
-            helper.buildSearchCriteria(cursor, pageSize, "title");
+            helper.buildSearchCriteria(cursor, pageSize,  "title", "ASC");
             fail("Exception should be thrown");
         } catch (IllegalArgumentException iae) {
             assertThat(iae.getMessage(), is("Sort field name should be set in param OR inside the cursor"));
@@ -121,10 +121,10 @@ class CursorHelperTest {
     void buildSearchCriteriaWhenSortNamePopulatedButValueNot() {
         final long id = 123L;
         final int pageSize = 35;
-        Cursor cursor = new Cursor(true, id, "title", null);
+        Cursor cursor = new Cursor(true, id, "title", null, "ASC");
 
         try {
-            helper.buildSearchCriteria(cursor, pageSize, null);
+            helper.buildSearchCriteria(cursor, pageSize,  null, "ASC");
             fail("Exception should be thrown");
         } catch (IllegalArgumentException iae) {
             assertThat(iae.getMessage(), is("Sort field name & value should be populated inside the cursor at the same time"));

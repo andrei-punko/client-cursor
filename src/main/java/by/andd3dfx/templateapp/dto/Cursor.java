@@ -21,4 +21,7 @@ public class Cursor {
 
     @JsonProperty("v")
     private String sortFieldValue;
+
+    @JsonProperty("o")
+    private String sortOrder;
 }

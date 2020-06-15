@@ -2,6 +2,7 @@ package by.andd3dfx.templateapp.util;
 
 import by.andd3dfx.templateapp.dto.ArticleDto;
 import by.andd3dfx.templateapp.dto.ArticleSearchCriteria;
+import by.andd3dfx.templateapp.dto.ArticleSearchCriteria.SortOrder;
 import by.andd3dfx.templateapp.dto.Cursor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.lang.reflect.Field;
@@ -39,7 +40,7 @@ public class CursorHelper {
         }
     }
 
-    public ArticleSearchCriteria buildSearchCriteria(Cursor cursor, Integer pageSize, String sortFieldName) {
+    public ArticleSearchCriteria buildSearchCriteria(Cursor cursor, Integer pageSize, String sortFieldName, String sortOrder) {
         validateIncomingParams(cursor, pageSize, sortFieldName);
 
         ArticleSearchCriteria criteria = new ArticleSearchCriteria();
@@ -48,16 +49,24 @@ public class CursorHelper {
             criteria.setId(cursor.getId());
             criteria.setSortFieldValue(cursor.getSortFieldValue());
         }
-        criteria.setSort(resolveSort(cursor, sortFieldName));
+        criteria.setSortFieldName(resolveSortFieldName(cursor, sortFieldName));
+        criteria.setSortOrder(SortOrder.valueOf(resolveSortOrder(cursor, sortOrder)));
         criteria.setPageSize(pageSize);
         return criteria;
     }
 
-    private String resolveSort(Cursor cursor, String explicitSortFieldName) {
+    private String resolveSortFieldName(Cursor cursor, String explicitSortFieldName) {
         if (cursor == null) {
             return explicitSortFieldName;
         }
         return cursor.getSortFieldName();
+    }
+
+    private String resolveSortOrder(Cursor cursor, String explicitSortOrder) {
+        if (cursor == null) {
+            return explicitSortOrder;
+        }
+        return cursor.getSortOrder();
     }
 
     private void validateIncomingParams(Cursor cursor, Integer pageSize, String sortFieldName) {
@@ -79,7 +88,7 @@ public class CursorHelper {
 
         ArticleDto firstArticle = articles.get(0);
         Long firstId = firstArticle.getId();
-        return encode(new Cursor(false, firstId, sortFieldName, extractSortFieldValue(sortFieldName, firstArticle)));
+        return encode(new Cursor(false, firstId, sortFieldName, extractSortFieldValue(sortFieldName, firstArticle), "ASC"));
     }
 
 
@@ -90,7 +99,7 @@ public class CursorHelper {
 
         ArticleDto lastArticle = articles.get(articles.size() - 1);
         Long lastId = lastArticle.getId();
-        return encode(new Cursor(true, lastId, sortFieldName, extractSortFieldValue(sortFieldName, lastArticle)));
+        return encode(new Cursor(true, lastId, sortFieldName, extractSortFieldValue(sortFieldName, lastArticle), "ASC"));
     }
 
     private String extractSortFieldValue(String sortFieldName, ArticleDto firstArticle) {

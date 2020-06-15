@@ -4,6 +4,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import by.andd3dfx.templateapp.dto.ArticleSearchCriteria;
+import by.andd3dfx.templateapp.dto.ArticleSearchCriteria.SortOrder;
 import by.andd3dfx.templateapp.persistence.entities.Article;
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -54,7 +55,7 @@ class ArticleRepositoryCustomImplTest {
     @Test
     public void findByCriteriaWithSort() {
         ArticleSearchCriteria criteria = new ArticleSearchCriteria();
-        criteria.setSort("title");
+        criteria.setSortFieldName("title");
 
         List<Article> result = repository.findByCriteria(criteria);
 
@@ -65,9 +66,23 @@ class ArticleRepositoryCustomImplTest {
     }
 
     @Test
+    public void findByCriteriaWithSortDesc() {
+        ArticleSearchCriteria criteria = new ArticleSearchCriteria();
+        criteria.setSortFieldName("title");
+        criteria.setSortOrder(SortOrder.DESC);
+
+        List<Article> result = repository.findByCriteria(criteria);
+
+        assertThat("Wrong records amount", result.size(), is(3));
+        assertThat("Wrong records[0] value", result.get(0), is(entity2));
+        assertThat("Wrong records[1] value", result.get(1), is(entity));
+        assertThat("Wrong records[2] value", result.get(2), is(entity3));
+    }
+
+    @Test
     public void findByCriteriaWithSortNPageSize() {
         ArticleSearchCriteria criteria = new ArticleSearchCriteria();
-        criteria.setSort("title");
+        criteria.setSortFieldName("title");
         criteria.setPageSize(2);
 
         List<Article> result = repository.findByCriteria(criteria);
@@ -78,9 +93,23 @@ class ArticleRepositoryCustomImplTest {
     }
 
     @Test
+    public void findByCriteriaWithSortDescNPageSize() {
+        ArticleSearchCriteria criteria = new ArticleSearchCriteria();
+        criteria.setSortFieldName("title");
+        criteria.setSortOrder(SortOrder.DESC);
+        criteria.setPageSize(2);
+
+        List<Article> result = repository.findByCriteria(criteria);
+
+        assertThat("Wrong records amount", result.size(), is(2));
+        assertThat("Wrong records[0] value", result.get(0), is(entity2));
+        assertThat("Wrong records[1] value", result.get(1), is(entity));
+    }
+
+    @Test
     public void findByCriteriaWithSortNIdNPageSize() {
         ArticleSearchCriteria criteria = new ArticleSearchCriteria();
-        criteria.setSort("title");
+        criteria.setSortFieldName("title");
         criteria.setId(entity3.getId());
         criteria.setSortFieldValue(entity3.getTitle());
         criteria.setPageSize(1);
@@ -92,9 +121,24 @@ class ArticleRepositoryCustomImplTest {
     }
 
     @Test
+    public void findByCriteriaWithSortDescNIdNPageSize() {
+        ArticleSearchCriteria criteria = new ArticleSearchCriteria();
+        criteria.setSortFieldName("title");
+        criteria.setId(entity2.getId());
+        criteria.setSortFieldValue(entity2.getTitle());
+        criteria.setSortOrder(SortOrder.DESC);
+        criteria.setPageSize(1);
+
+        List<Article> result = repository.findByCriteria(criteria);
+
+        assertThat("Wrong records amount", result.size(), is(1));
+        assertThat("Wrong records[0] value", result.get(0), is(entity));
+    }
+
+    @Test
     public void findByCriteriaWithSortNId() {
         ArticleSearchCriteria criteria = new ArticleSearchCriteria();
-        criteria.setSort("title");
+        criteria.setSortFieldName("title");
         criteria.setId(entity3.getId());
         criteria.setSortFieldValue(entity3.getTitle());
 
@@ -103,6 +147,21 @@ class ArticleRepositoryCustomImplTest {
         assertThat("Wrong records amount", result.size(), is(2));
         assertThat("Wrong records[0] value", result.get(0), is(entity));
         assertThat("Wrong records[1] value", result.get(1), is(entity2));
+    }
+
+    @Test
+    public void findByCriteriaWithSortDescNId() {
+        ArticleSearchCriteria criteria = new ArticleSearchCriteria();
+        criteria.setSortFieldName("title");
+        criteria.setId(entity2.getId());
+        criteria.setSortFieldValue(entity2.getTitle());
+        criteria.setSortOrder(SortOrder.DESC);
+
+        List<Article> result = repository.findByCriteria(criteria);
+
+        assertThat("Wrong records amount", result.size(), is(2));
+        assertThat("Wrong records[0] value", result.get(0), is(entity));
+        assertThat("Wrong records[1] value", result.get(1), is(entity3));
     }
 
     @Test

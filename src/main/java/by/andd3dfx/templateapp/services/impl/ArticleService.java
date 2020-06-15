@@ -59,14 +59,14 @@ public class ArticleService implements IArticleService {
 
     @Transactional(readOnly = true)
     @Override
-    public CursorResponse<ArticleDto> getByCursor(String encodedCursor, Integer pageSize, String sort) {
+    public CursorResponse<ArticleDto> getByCursor(String encodedCursor, Integer pageSize, String sortFieldName, String sortOrder) {
         Cursor cursor = cursorHelper.decode(encodedCursor);
-        ArticleSearchCriteria criteria = cursorHelper.buildSearchCriteria(cursor, pageSize, sort);
+        ArticleSearchCriteria criteria = cursorHelper.buildSearchCriteria(cursor, pageSize, sortFieldName, sortOrder);
         List<Article> articles = articleRepository.findByCriteria(criteria);
 
         List<ArticleDto> articleDtos = articleMapper.toArticleDtoList(articles);
-        String prevLink = cursorHelper.buildPrevLink(articleDtos, sort, criteria.getSort());
-        String nextLink = cursorHelper.buildNextLink(articleDtos, pageSize, criteria.getSort());
+        String prevLink = cursorHelper.buildPrevLink(articleDtos, sortFieldName, criteria.getSortFieldName());
+        String nextLink = cursorHelper.buildNextLink(articleDtos, pageSize, criteria.getSortFieldName());
         return new CursorResponse<>(articleDtos, prevLink, nextLink);
     }
 }

@@ -14,5 +14,5 @@ public interface IArticleService {
 
     void delete(Long id);
 
-    CursorResponse<ArticleDto> getByCursor(String cursor, Integer pageSize, String sort);
+    CursorResponse<ArticleDto> getByCursor(String cursor, Integer pageSize, String sortFieldName, String sortOrder);
 }

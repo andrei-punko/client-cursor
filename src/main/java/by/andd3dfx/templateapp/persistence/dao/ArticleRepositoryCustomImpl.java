@@ -1,6 +1,7 @@
 package by.andd3dfx.templateapp.persistence.dao;
 
 import by.andd3dfx.templateapp.dto.ArticleSearchCriteria;
+import by.andd3dfx.templateapp.dto.ArticleSearchCriteria.SortOrder;
 import by.andd3dfx.templateapp.persistence.entities.Article;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -44,7 +45,7 @@ public class ArticleRepositoryCustomImpl implements ArticleRepositoryCustom {
         CriteriaQuery<Article> cq = cb.createQuery(Article.class);
         Root<Article> plan = cq.from(Article.class);
 
-        String sortFieldName = criteria.getSort();
+        String sortFieldName = criteria.getSortFieldName();
         if (sortFieldName != null) {
             String sortFieldValue = criteria.getSortFieldValue();
 
@@ -54,7 +55,7 @@ public class ArticleRepositoryCustomImpl implements ArticleRepositoryCustom {
                     cb.and(equalFieldPredicate, buildIdPredicate(criteria, cb, plan)) :
                     equalFieldPredicate;
 
-                Expression<Boolean> predicate2 = buildSortFieldPredicate(criteria, cb, plan, sortFieldName, sortFieldValue);
+                Expression<Boolean> predicate2 = buildSortFieldPredicate(criteria, cb, plan, sortFieldName, sortFieldValue, criteria.getSortOrder());
                 cq.where(cb.or(predicate1, predicate2));
             } else if (criteria.getId() != null) {
                 cq.where(buildIdPredicate(criteria, cb, plan));
@@ -65,10 +66,17 @@ public class ArticleRepositoryCustomImpl implements ArticleRepositoryCustom {
 
         final List<Order> orders = new ArrayList<>();
         if (sortFieldName != null) {
-            final Order orderBySortingField = criteria.isForward() ?
-                cb.asc(plan.get(sortFieldName)) :
-                cb.desc(plan.get(sortFieldName));
-            orders.add(orderBySortingField);
+            if (criteria.getSortOrder() == SortOrder.ASC) {
+                final Order orderBySortingField = criteria.isForward() ?
+                    cb.asc(plan.get(sortFieldName)) :
+                    cb.desc(plan.get(sortFieldName));
+                orders.add(orderBySortingField);
+            } else {
+                final Order orderBySortingField = criteria.isForward() ?
+                    cb.desc(plan.get(sortFieldName)) :
+                    cb.asc(plan.get(sortFieldName));
+                orders.add(orderBySortingField);
+            }
         }
 
         final Order orderById = criteria.isForward() ?
@@ -88,10 +96,16 @@ public class ArticleRepositoryCustomImpl implements ArticleRepositoryCustom {
     }
 
     private Predicate buildSortFieldPredicate(ArticleSearchCriteria criteria, CriteriaBuilder cb, Root<Article> plan, String sortFieldName,
-        String sortFieldValue) {
-        return criteria.isForward() ?
-            cb.greaterThan(plan.get(sortFieldName), sortFieldValue) :
-            cb.lessThan(plan.get(sortFieldName), sortFieldValue);
+        String sortFieldValue, SortOrder sortOrder) {
+        if (sortOrder == SortOrder.ASC) {
+            return criteria.isForward() ?
+                cb.greaterThan(plan.get(sortFieldName), sortFieldValue) :
+                cb.lessThan(plan.get(sortFieldName), sortFieldValue);
+        } else {
+            return criteria.isForward() ?
+                cb.lessThan(plan.get(sortFieldName), sortFieldValue) :
+                cb.greaterThan(plan.get(sortFieldName), sortFieldValue);
+        }
     }
 
     private Predicate buildIdPredicate(ArticleSearchCriteria criteria, CriteriaBuilder cb, Root<Article> plan) {
