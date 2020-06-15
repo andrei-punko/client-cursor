@@ -10,13 +10,13 @@ Supports CRUD set of operations and R with pagination
 - JDK 8
 - Maven 3
 
-##How to build:
+## How to build:
 `mvn clean install`
 
 ## How to start:
 - Use [run.bat](./run.bat) script or
 - Use next command:  
-java -jar target/spring-boot-template-0.0.1-SNAPSHOT.jar \
+java -jar target/client-cursor-0.0.1-SNAPSHOT.jar \
  --spring.datasource.url=jdbc:h2:mem:testdb \
  --spring.datasource.username=sa \
  --spring.datasource.password=password \
