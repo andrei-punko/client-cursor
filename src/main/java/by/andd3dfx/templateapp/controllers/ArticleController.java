@@ -98,8 +98,8 @@ public class ArticleController {
     public CursorResponse<ArticleDto> getArticlesByCursor(
         @ApiParam("Encoded cursor")
         @RequestParam(required = false) String cursor,
-        @RequestParam(required = false) String sortFieldName,
-        @RequestParam(required = false, defaultValue = "ASC") String sortOrder,
+        @RequestParam(value = "sort", required = false) String sortFieldName,
+        @RequestParam(value = "order", required = false, defaultValue = "ASC") String sortOrder,
         @RequestParam(value = "size", defaultValue = "50", required = false) Integer pageSize
     ) {
         return articleService.getByCursor(cursor, pageSize, sortFieldName, sortOrder);
