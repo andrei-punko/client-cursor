@@ -1,0 +1,10 @@
+version: "3"
+services:
+  backend-template-app:
+    image: client-cursor-app:latest
+    network_mode: bridge
+    container_name: client-cursor-app
+    expose:
+      - 9080
+    ports:
+      - 9080:9080
