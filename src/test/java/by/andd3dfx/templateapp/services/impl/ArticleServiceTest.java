@@ -1,11 +1,11 @@
 package by.andd3dfx.templateapp.services.impl;
 
-import by.andd3dfx.templateapp.dto.ArticleDto;
-import by.andd3dfx.templateapp.dto.ArticleUpdateDto;
+import by.andd3dfx.templateapp.dto.*;
 import by.andd3dfx.templateapp.exceptions.ArticleNotFoundException;
 import by.andd3dfx.templateapp.mappers.ArticleMapper;
 import by.andd3dfx.templateapp.persistence.dao.ArticleRepository;
 import by.andd3dfx.templateapp.persistence.entities.Article;
+import by.andd3dfx.templateapp.util.CursorHelper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,6 +18,8 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -33,6 +35,9 @@ class ArticleServiceTest {
 
     @Mock
     private ArticleMapper articleMapperMock;
+
+    @Mock
+    private CursorHelper cursorHelperMock;
 
     @Mock
     private Clock clockMock;
@@ -159,5 +164,40 @@ class ArticleServiceTest {
             Mockito.verify(articleRepositoryMock).deleteById(ARTICLE_ID);
             assertThat("Wrong message", ex.getMessage(), is("Could not find an article by id=" + ARTICLE_ID));
         }
+    }
+
+    @Test
+    public void getByCursor() {
+        final String encodedCursor = "some-encoded-cursor";
+        final int pageSize = 50;
+        final String sortFieldName = "some-sort-field-name";
+        final String sortOrder = "some-sort-order";
+        final Cursor cursor = new Cursor();
+
+        Mockito.when(cursorHelperMock.decode(encodedCursor)).thenReturn(cursor);
+        final ArticleSearchCriteria criteria = new ArticleSearchCriteria();
+        Mockito.when(cursorHelperMock.buildSearchCriteria(cursor, pageSize, sortFieldName, sortOrder)).thenReturn(criteria);
+        final List<Article> articles = Arrays.asList(new Article());
+        Mockito.when(articleRepositoryMock.findByCriteria(criteria)).thenReturn(articles);
+        final List<ArticleDto> articleDtos = Arrays.asList(new ArticleDto());
+        Mockito.when(articleMapperMock.toArticleDtoList(articles)).thenReturn(articleDtos);
+        final String prevLink = "some-prev-link";
+        Mockito.when(cursorHelperMock.buildPrevLink(articleDtos, sortFieldName, criteria.getSortFieldName())).thenReturn(prevLink);
+        final String nextLink = "some-next-link";
+        Mockito.when(cursorHelperMock.buildNextLink(articleDtos, pageSize, criteria.getSortFieldName())).thenReturn(nextLink);
+
+        CursorResponse<ArticleDto> response = articleService
+                .getByCursor(encodedCursor, pageSize, sortFieldName, sortOrder);
+
+        assertThat(response.getData(), is(articleDtos));
+        assertThat(response.getPrev(), is(prevLink));
+        assertThat(response.getNext(), is(nextLink));
+
+        Mockito.verify(cursorHelperMock).decode(encodedCursor);
+        Mockito.verify(cursorHelperMock).buildSearchCriteria(cursor, pageSize, sortFieldName, sortOrder);
+        Mockito.verify(articleRepositoryMock).findByCriteria(criteria);
+        Mockito.verify(articleMapperMock).toArticleDtoList(articles);
+        Mockito.verify(cursorHelperMock).buildPrevLink(articleDtos, sortFieldName, criteria.getSortFieldName());
+        Mockito.verify(cursorHelperMock).buildNextLink(articleDtos, pageSize, criteria.getSortFieldName());
     }
 }
