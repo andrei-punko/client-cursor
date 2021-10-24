@@ -2,6 +2,7 @@
 
 
 ![Java CI with Maven](https://github.com/andrei-punko/client-cursor/workflows/Java%20CI%20with%20Maven/badge.svg)
+[![Coverage](.github/badges/jacoco.svg)](jacoco.svg)
 
 Based on [Template for Spring Boot application](https://github.com/andrei-punko/spring-boot-template)
 
