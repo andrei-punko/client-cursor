@@ -199,6 +199,37 @@ class ArticleRepositoryCustomImplTest {
         assertThat("Not found some entity", result.containsAll(Arrays.asList(entity, entity2)), is(true));
     }
 
+    @Test
+    public void findByCriteriaWithSortNIdNPageSizeNBackwardCursor() {
+        ArticleSearchCriteria criteria = new ArticleSearchCriteria();
+        criteria.setForward(false);
+        criteria.setSortFieldName("title");
+        criteria.setId(entity2.getId());
+        criteria.setSortFieldValue(entity2.getTitle());
+        criteria.setPageSize(1);
+
+        List<Article> result = repository.findByCriteria(criteria);
+
+        assertThat("Wrong records amount", result.size(), is(1));
+        assertThat("Wrong records[0] value", result.get(0), is(entity));
+    }
+
+    @Test
+    public void findByCriteriaWithSortDescNIdNPageSizeNBackwardCursor() {
+        ArticleSearchCriteria criteria = new ArticleSearchCriteria();
+        criteria.setForward(false);
+        criteria.setSortFieldName("title");
+        criteria.setId(entity3.getId());
+        criteria.setSortFieldValue(entity3.getTitle());
+        criteria.setSortOrder(SortOrder.DESC);
+        criteria.setPageSize(1);
+
+        List<Article> result = repository.findByCriteria(criteria);
+
+        assertThat("Wrong records amount", result.size(), is(1));
+        assertThat("Wrong records[0] value", result.get(0), is(entity));
+    }
+
     private Article buildArticle(String title, String summary, LocalDateTime timestamp) {
         Article article = new Article();
         article.setTitle(title);

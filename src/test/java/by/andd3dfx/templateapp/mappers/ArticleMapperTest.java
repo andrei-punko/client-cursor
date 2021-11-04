@@ -22,6 +22,7 @@ class ArticleMapperTest {
         Article article = buildArticle();
 
         ArticleDto articleDto = mapper.toArticleDto(article);
+
         checkCompareAssertions(articleDto, article);
     }
 
@@ -36,6 +37,7 @@ class ArticleMapperTest {
         List<Article> articles = Arrays.asList(article);
 
         List<ArticleDto> articleDtoItems = mapper.toArticleDtoList(articles);
+
         assertThat("Wrong result list size", articleDtoItems.size(), is(1));
         checkCompareAssertions(articleDtoItems.get(0), article);
     }
@@ -50,6 +52,7 @@ class ArticleMapperTest {
         ArticleDto articleDto = buildArticleDto();
 
         Article article = mapper.toArticle(articleDto);
+
         checkCompareAssertions(articleDto, article);
     }
 
@@ -60,20 +63,35 @@ class ArticleMapperTest {
 
     @Test
     void toArticleWithTarget() {
-        ArticleUpdateDto source = new ArticleUpdateDto();
         final String NEW_TITLE = "New title";
+        final String NEW_SUMMARY = "New summary";
+        final String NEW_TEXT = "New text";
+
+        ArticleUpdateDto source = new ArticleUpdateDto();
         source.setTitle(NEW_TITLE);
+        source.setSummary(NEW_SUMMARY);
+        source.setText(NEW_TEXT);
         Article target = buildArticle();
-        final String OLD_TEXT = target.getText();
 
         mapper.toArticle(source, target);
 
         assertThat(target.getTitle(), is(NEW_TITLE));
+        assertThat(target.getSummary(), is(NEW_SUMMARY));
+        assertThat(target.getText(), is(NEW_TEXT));
+    }
+
+    @Test
+    void toArticleWithTargetForEmptySource() {
+        Article target = buildArticle();
+        final String OLD_TEXT = target.getText();
+
+        mapper.toArticle(new ArticleUpdateDto(), target);
+
         assertThat(target.getText(), is(OLD_TEXT));
     }
 
     @Test
-    void toArticleWithTargetForNull() {
+    void toArticleWithTargetForNullSource() {
         Article target = buildArticle();
         final String OLD_TEXT = target.getText();
 
