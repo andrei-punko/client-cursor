@@ -10,7 +10,7 @@ Based on [Template for Spring Boot application](https://github.com/andrei-punko/
 Includes web-server on port 9080 with `/articles` endpoint exposed.  
 Supports CRUD set of operations and R with pagination
 
-## Prerequisities:
+## Prerequisites:
 - JDK 8
 - Maven 3
 

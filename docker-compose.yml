@@ -1,10 +1,7 @@
 version: "3"
+
 services:
   client-cursor-app-container:
-    image: client-cursor-app:latest
-    network_mode: bridge
-    container_name: client-cursor-app-container
-    expose:
-      - 9080
+    build: ./
     ports:
-      - 9080:9080
+      - "9080:9080"
