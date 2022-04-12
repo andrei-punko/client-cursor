@@ -1,5 +1,5 @@
 
-# Example of Client Cursor API
+# Client Cursor API via REST example
 
 ![Java CI with Maven](https://github.com/andrei-punko/client-cursor/workflows/Java%20CI%20with%20Maven/badge.svg)
 [![Coverage](.github/badges/jacoco.svg)](https://github.com/andrei-punko/client-cursor/actions/workflows/maven.yml)
