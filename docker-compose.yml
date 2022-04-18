@@ -1,7 +1,7 @@
 version: "3"
 
 services:
-  client-cursor-app-container:
-    build: ./
+  client-cursor-app:
+    build: .
     ports:
       - "9080:9080"
