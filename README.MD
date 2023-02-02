@@ -21,17 +21,21 @@ Supports CRUD set of operations and R with pagination
     docker build ./ -t client-cursor-app
 
 ## How to start:
-- Use [run.bat](./run.bat) script or
+Use [run.bat](./run.bat) script or
 
-- Use next command:  
+Use next command:  
+```
 java -jar target/client-cursor-0.0.1-SNAPSHOT.jar \
  --spring.datasource.url=jdbc:h2:mem:testdb \
  --spring.datasource.username=sa \
  --spring.datasource.password=password \
  --spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.H2Dialect
+```
 
-- Use Docker compose:  
- `docker-compose up`
+Use Docker compose:  
+```
+docker-compose up
+```
 
 ## Link for quick check:  
 http://localhost:9080/articles
@@ -40,23 +44,35 @@ http://localhost:9080/articles
 http://localhost:9080/swagger-ui.html
 
 ## Useful CURL commands:
-- New article addition:  
-`curl -i -H "Accept: application/json" -H "Content-Type: application/json" -d '{ "title": "Some tittle", "text": "Some text", "author": { "id": 1 } }' -X POST http://localhost:9080/articles`
+### New article addition:  
+```
+curl -i -H "Accept: application/json" -H "Content-Type: application/json" -d '{ "title": "Some tittle", "text": "Some text", "author": { "id": 1 } }' -X POST http://localhost:9080/articles
+```
 
-- Get existing article:  
-`curl -i http://localhost:9080/articles/1`
+### Get existing article:  
+```
+curl -i http://localhost:9080/articles/1
+```
 
-- Update existing article:  
-`curl -i -H "Accept: application/json" -H "Content-Type: application/json" -d '{ "title": "Another tittle" }' -X PATCH http://localhost:9080/articles/2`
+### Update existing article:  
+```
+curl -i -H "Accept: application/json" -H "Content-Type: application/json" -d '{ "title": "Another tittle" }' -X PATCH http://localhost:9080/articles/2
+```
 
-- Get list of articles using cursor:  
-`curl -i 'http://localhost:9080/articles?size=2'`  
+### Get list of articles using cursor:  
+```
+curl -i 'http://localhost:9080/articles?size=2'
+```
 Next and prev cursors placed in response: `{"data":[...], "prev":..., "next":...}`  
 Use cursor as a parameter in next requests:  
-`curl -i 'http://localhost:9080/articles?size=2&cursor=PUT_NEXT_OR_PREV_CURSOR_HERE'`  
+```
+curl -i 'http://localhost:9080/articles?size=2&cursor=PUT_NEXT_OR_PREV_CURSOR_HERE'
+```
 If needed - add `sort` parameter to query, for example `sort=title`.  
 You need to pass it only in initial query, after that all info will be encoded into next/prev cursor and you need to pass cursor only (and `size` if needed).  
 Order direction via `order` parameter is supported (`ASC`/`DESC`)
 
-- Deletion of article:  
-`curl -i -X DELETE http://localhost:9080/articles/1`
+### Deletion of article:  
+```
+curl -i -X DELETE http://localhost:9080/articles/1
+```
