@@ -18,7 +18,7 @@ class SomeSpec extends Specification {
         then: 'server returns 200 code (ok)'
         assert getResponse.status == 200
         and: 'got 2 records'
-        assert getResponse.responseData.data.size == 2
+        assert getResponse.responseData.data.size() == 2
         and: 'prev & next link matched to expected values'
         assert getResponse.responseData.prev == 'eyJmIjpmYWxzZSwiaSI6MywibiI6bnVsbCwidiI6bnVsbCwibyI6IkFTQyJ9'
         assert getResponse.responseData.next == 'eyJmIjp0cnVlLCJpIjo0LCJuIjpudWxsLCJ2IjpudWxsLCJvIjoiQVNDIn0='
