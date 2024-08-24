@@ -5,7 +5,7 @@
 [![Coverage](.github/badges/jacoco.svg)](https://github.com/andrei-punko/client-cursor/actions/workflows/maven.yml)
 [![Branches](.github/badges/branches.svg)](https://github.com/andrei-punko/client-cursor/actions/workflows/maven.yml)
 
-Based on [Template for Spring Boot application](https://github.com/andrei-punko/spring-boot-template)
+Based on [Template for Spring Boot application](https://github.com/andrei-punko/spring-boot-3-template)
 
 Includes web-server on port 9080 with `/articles` endpoint exposed.  
 Supports CRUD set of operations and R with pagination
