@@ -118,12 +118,13 @@ class ArticleServiceTest {
         Mockito.when(articleRepositoryMock.save(article)).thenReturn(savedArticle);
         Mockito.when(articleMapperMock.toArticleDto(savedArticle)).thenReturn(updatedArticleDto);
 
-        articleService.update(ARTICLE_ID, articleUpdateDto);
+        ArticleDto result = articleService.update(ARTICLE_ID, articleUpdateDto);
 
         Mockito.verify(articleRepositoryMock).findById(ARTICLE_ID);
         Mockito.verify(articleMapperMock).toArticle(articleUpdateDto, article);
         Mockito.verify(articleRepositoryMock).save(article);
         Mockito.verify(articleMapperMock).toArticleDto(savedArticle);
+        assertThat(result, is(updatedArticleDto));
     }
 
     @Test

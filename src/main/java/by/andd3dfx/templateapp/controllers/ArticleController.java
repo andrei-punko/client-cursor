@@ -64,7 +64,7 @@ public class ArticleController {
         @ApiResponse(code = 404, message = "Article not found"),
     })
     @PatchMapping("/{id}")
-    public void updateArticle(
+    public ArticleDto updateArticle(
         @ApiParam("Article's id")
         @NotNull
         @PathVariable Long id,
@@ -72,7 +72,7 @@ public class ArticleController {
         @Validated
         @RequestBody ArticleUpdateDto articleUpdateDto
     ) {
-        articleService.update(id, articleUpdateDto);
+        return articleService.update(id, articleUpdateDto);
     }
 
     @ApiOperation("Delete article by id")

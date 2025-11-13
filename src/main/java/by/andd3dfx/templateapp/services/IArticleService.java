@@ -10,7 +10,7 @@ public interface IArticleService {
 
     ArticleDto get(Long id);
 
-    void update(Long id, ArticleUpdateDto articleUpdateDto);
+    ArticleDto update(Long id, ArticleUpdateDto articleUpdateDto);
 
     void delete(Long id);
 

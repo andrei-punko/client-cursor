@@ -59,9 +59,12 @@ class ArticleControllerTest {
     void updateArticle() {
         final Long articleId = 123L;
         ArticleUpdateDto articleUpdateDto = buildArticleUpdateDto();
+        final ArticleDto createdArticle = buildArticleDto();
+        when(articleService.update(articleId, articleUpdateDto)).thenReturn(createdArticle);
 
-        articleController.updateArticle(articleId, articleUpdateDto);
+        ArticleDto result = articleController.updateArticle(articleId, articleUpdateDto);
 
+        assertThat(result, is(createdArticle));
         verify(articleService).update(articleId, articleUpdateDto);
     }
 
