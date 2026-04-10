@@ -55,7 +55,7 @@ http://localhost:9080/swagger-ui/index.html
 ### New article addition:
 
 ```
-curl -i -H "Accept: application/json" -H "Content-Type: application/json" -d '{ "title": "Some tittle", "text": "Some text", "author": { "id": 1 } }' -X POST http://localhost:9080/articles
+curl -i -H "Accept: application/json" -H "Content-Type: application/json" -d '{ "title": "Some title", "text": "Some text", "author": "Jane Doe" }' -X POST http://localhost:9080/articles
 ```
 
 ### Get existing article:
@@ -67,7 +67,7 @@ curl -i http://localhost:9080/articles/1
 ### Update existing article:
 
 ```
-curl -i -H "Accept: application/json" -H "Content-Type: application/json" -d '{ "title": "Another tittle" }' -X PATCH http://localhost:9080/articles/2
+curl -i -H "Accept: application/json" -H "Content-Type: application/json" -d '{ "title": "Another title" }' -X PATCH http://localhost:9080/articles/2
 ```
 
 ### Get list of articles using cursor:
