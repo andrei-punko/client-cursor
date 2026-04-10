@@ -2,7 +2,7 @@ package by.andd3dfx.clientcursor.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
@@ -11,14 +11,14 @@ import lombok.Data;
 public class ArticleUpdateDto {
 
     @Size(min = 1, max = 100, message = "Title length must be between 1 and 100")
-    @ApiModelProperty(notes = "Article's title")
+    @Schema(description = "Article's title")
     private String title;
 
     @Size(max = 255, message = "Summary length shouldn't be greater than 255")
-    @ApiModelProperty(notes = "Article's summary")
+    @Schema(description = "Article's summary")
     private String summary;
 
     @Size(min = 1, message = "Text length should be 1 at least")
-    @ApiModelProperty(notes = "Article's text")
+    @Schema(description = "Article's text")
     private String text;
 }

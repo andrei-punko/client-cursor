@@ -4,10 +4,10 @@ import by.andd3dfx.clientcursor.dto.ArticleDto;
 import by.andd3dfx.clientcursor.dto.ArticleUpdateDto;
 import by.andd3dfx.clientcursor.dto.CursorResponse;
 import by.andd3dfx.clientcursor.services.IArticleService;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -30,73 +30,73 @@ public class ArticleController {
 
     private final IArticleService articleService;
 
-    @ApiOperation(value = "Create new article", response = ArticleDto.class)
-    @ApiResponses(value = {
-        @ApiResponse(code = 201, message = "Article successfully created"),
+    @Operation(summary = "Create new article")
+    @ApiResponses({
+        @ApiResponse(responseCode = "201", description = "Article successfully created"),
     })
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ArticleDto createArticle(
-        @ApiParam("New article's data")
+        @Parameter(description = "New article's data")
         @Validated
         @RequestBody ArticleDto newArticleDto
     ) {
         return articleService.create(newArticleDto);
     }
 
-    @ApiOperation(value = "Get article by id", response = ArticleDto.class)
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Article successfully retrieved"),
-        @ApiResponse(code = 404, message = "Article not found"),
+    @Operation(summary = "Get article by id")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Article successfully retrieved"),
+        @ApiResponse(responseCode = "404", description = "Article not found"),
     })
     @GetMapping("/{id}")
     public ArticleDto readArticle(
-        @ApiParam("Article's id")
+        @Parameter(description = "Article's id")
         @NotNull
         @PathVariable Long id
     ) {
         return articleService.get(id);
     }
 
-    @ApiOperation("Update article")
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Article successfully updated"),
-        @ApiResponse(code = 404, message = "Article not found"),
+    @Operation(summary = "Update article")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Article successfully updated"),
+        @ApiResponse(responseCode = "404", description = "Article not found"),
     })
     @PatchMapping("/{id}")
     public ArticleDto updateArticle(
-        @ApiParam("Article's id")
+        @Parameter(description = "Article's id")
         @NotNull
         @PathVariable Long id,
-        @ApiParam("Updated fields of article")
+        @Parameter(description = "Updated fields of article")
         @Validated
         @RequestBody ArticleUpdateDto articleUpdateDto
     ) {
         return articleService.update(id, articleUpdateDto);
     }
 
-    @ApiOperation("Delete article by id")
-    @ApiResponses(value = {
-        @ApiResponse(code = 204, message = "Article successfully deleted"),
-        @ApiResponse(code = 404, message = "Article not found"),
+    @Operation(summary = "Delete article by id")
+    @ApiResponses({
+        @ApiResponse(responseCode = "204", description = "Article successfully deleted"),
+        @ApiResponse(responseCode = "404", description = "Article not found"),
     })
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteArticle(
-        @ApiParam("Article's id")
+        @Parameter(description = "Article's id")
         @NotNull
         @PathVariable Long id
     ) {
         articleService.delete(id);
     }
 
-    @ApiOperation(value = "Read articles by cursor", response = CursorResponse.class)
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Articles successfully retrieved"),
+    @Operation(summary = "Read articles by cursor")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Articles successfully retrieved"),
     })
     @GetMapping
     public CursorResponse<ArticleDto> getArticlesByCursor(
-        @ApiParam("Encoded cursor")
+        @Parameter(description = "Encoded cursor")
         @RequestParam(required = false) String cursor,
         @RequestParam(value = "sort", required = false) String sortFieldName,
         @RequestParam(value = "order", required = false, defaultValue = "ASC") String sortOrder,

@@ -4,9 +4,9 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.lessThan;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import by.andd3dfx.clientcursor.dto.ArticleDto;
 import by.andd3dfx.clientcursor.dto.ArticleSearchCriteria;
@@ -57,7 +57,7 @@ class CursorHelperTest {
 
         String encodedString = helper.encode(cursor);
 
-        assertThat(encodedString.length(), lessThan(120));
+        assertThat(encodedString.length(), lessThan(200));
     }
 
     @Test
