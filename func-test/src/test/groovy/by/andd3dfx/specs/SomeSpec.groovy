@@ -1,5 +1,6 @@
 package by.andd3dfx.specs
 
+import groovy.json.JsonSlurper
 import groovyx.net.http.HttpResponseException
 import org.apache.commons.lang.RandomStringUtils
 import spock.lang.Specification
@@ -19,9 +20,16 @@ class SomeSpec extends Specification {
         assert getResponse.status == 200
         and: 'got 2 records'
         assert getResponse.responseData.data.size() == 2
-        and: 'prev & next link matched to expected values'
-        assert getResponse.responseData.prev == 'eyJmIjpmYWxzZSwiaSI6MywibiI6bnVsbCwidiI6bnVsbCwibyI6IkFTQyJ9'
-        assert getResponse.responseData.next == 'eyJmIjp0cnVlLCJpIjo0LCJuIjpudWxsLCJ2IjpudWxsLCJvIjoiQVNDIn0='
+        and: 'prev cursor points to id 3, backward, ASC'
+        def prev = decodeCursor(getResponse.responseData.prev as String)
+        assert prev.i == 3
+        assert prev.o == 'ASC'
+        assert cursorForward(prev) == false
+        and: 'next cursor points to id 4, forward, ASC'
+        def next = decodeCursor(getResponse.responseData.next as String)
+        assert next.i == 4
+        assert next.o == 'ASC'
+        assert cursorForward(next) == true
     }
 
     def 'Read particular article'() {
@@ -109,5 +117,23 @@ class SomeSpec extends Specification {
 
     String generateRandomString(int count) {
         RandomStringUtils.random(count, true, true)
+    }
+
+    private static Map decodeCursor(String encoded) {
+        def json = new String(encoded.decodeBase64(), 'UTF-8')
+        (Map) new JsonSlurper().parseText(json)
+    }
+
+    /**
+     * Cursor JSON uses short key "f"; newer Jackson may also emit "forward" for the same flag.
+     */
+    private static boolean cursorForward(Map c) {
+        if (c.containsKey('f')) {
+            return c.f as boolean
+        }
+        if (c.containsKey('forward')) {
+            return c.forward as boolean
+        }
+        true
     }
 }
