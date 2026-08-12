@@ -132,6 +132,30 @@ class CursorHelperTest {
     }
 
     @Test
+    void buildSearchCriteriaWhenUnsupportedSortPassedAsParam() {
+        Assertions.assertThrows(IllegalArgumentException.class, () ->
+            helper.buildSearchCriteria(null, 35, "unknown", "ASC")
+        );
+    }
+
+    @Test
+    void buildSearchCriteriaWhenUnsupportedSortEncodedInCursor() {
+        Cursor cursor = new Cursor(true, 123L, "text", "Some value", "ASC");
+
+        Assertions.assertThrows(IllegalArgumentException.class, () ->
+            helper.buildSearchCriteria(cursor, 35, null, "ASC")
+        );
+    }
+
+    @Test
+    void buildSearchCriteriaForAllowedSortFields() {
+        for (String sortFieldName : new String[]{"title", "author", "summary"}) {
+            ArticleSearchCriteria criteria = helper.buildSearchCriteria(null, 35, sortFieldName, "ASC");
+            assertThat(criteria.getSortFieldName(), is(sortFieldName));
+        }
+    }
+
+    @Test
     void buildPrevLink() {
         List<ArticleDto> articles = Arrays.asList(buildArticle(123L), buildArticle(125L));
 
@@ -175,7 +199,35 @@ class CursorHelperTest {
 
         String nextLink = helper.buildNextLink(articles, pageSize, "title");
 
-        assertThat(new CursorHelper().decode(nextLink).getId(), is(125L));
+        Cursor decoded = new CursorHelper().decode(nextLink);
+        assertThat(decoded.getId(), is(125L));
+        assertThat(decoded.getSortFieldName(), is("title"));
+        assertThat(decoded.getSortFieldValue(), is("Some tittle value"));
+    }
+
+    @Test
+    void buildNextLinkForAuthor() {
+        Integer pageSize = 2;
+        List<ArticleDto> articles = Arrays.asList(buildArticle(123L), buildArticle(125L));
+
+        String nextLink = helper.buildNextLink(articles, pageSize, "author");
+
+        Cursor decoded = helper.decode(nextLink);
+        assertThat(decoded.getId(), is(125L));
+        assertThat(decoded.getSortFieldName(), is("author"));
+        assertThat(decoded.getSortFieldValue(), is("John Deer"));
+    }
+
+    @Test
+    void buildPrevLinkForSummary() {
+        List<ArticleDto> articles = Arrays.asList(buildArticle(123L), buildArticle(125L));
+
+        String prevLink = helper.buildPrevLink(articles, null, "summary");
+
+        Cursor decoded = helper.decode(prevLink);
+        assertThat(decoded.getId(), is(123L));
+        assertThat(decoded.getSortFieldName(), is("summary"));
+        assertThat(decoded.getSortFieldValue(), is("Some summary value"));
     }
 
     @Test

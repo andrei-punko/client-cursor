@@ -5,15 +5,23 @@ import by.andd3dfx.clientcursor.dto.ArticleSearchCriteria;
 import by.andd3dfx.clientcursor.dto.ArticleSearchCriteria.SortOrder;
 import by.andd3dfx.clientcursor.dto.Cursor;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.lang.reflect.Field;
 import java.util.Base64;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import org.springframework.stereotype.Component;
 
 @Component
 public class CursorHelper {
 
     public static final String DEFAULT_ENCODING = "UTF-8";
+
+    private static final Map<String, Function<ArticleDto, String>> SORT_FIELDS = Map.of(
+        "title", ArticleDto::getTitle,
+        "author", ArticleDto::getAuthor,
+        "summary", ArticleDto::getSummary
+    );
+
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     public String encode(Cursor cursor) {
@@ -78,6 +86,20 @@ public class CursorHelper {
             if (cursor.getSortFieldName() != null && cursor.getSortFieldValue() == null) {
                 throw new IllegalArgumentException("Sort field name & value should be populated inside the cursor at the same time");
             }
+
+            validateSortFieldName(cursor.getSortFieldName());
+        } else {
+            validateSortFieldName(sortFieldName);
+        }
+    }
+
+    private void validateSortFieldName(String sortFieldName) {
+        if (sortFieldName == null) {
+            return;
+        }
+        if (!SORT_FIELDS.containsKey(sortFieldName)) {
+            String allowed = String.join(", ", SORT_FIELDS.keySet());
+            throw new IllegalArgumentException("Unsupported sort field: '" + sortFieldName + "'. Allowed: " + allowed);
         }
     }
 
@@ -102,16 +124,11 @@ public class CursorHelper {
         return encode(new Cursor(true, lastId, sortFieldName, extractSortFieldValue(sortFieldName, lastArticle), "ASC"));
     }
 
-    private String extractSortFieldValue(String sortFieldName, ArticleDto firstArticle) {
+    private String extractSortFieldValue(String sortFieldName, ArticleDto article) {
         if (sortFieldName == null) {
             return null;
         }
-        try {
-            Field field = firstArticle.getClass().getDeclaredField(sortFieldName);
-            field.setAccessible(true);
-            return String.valueOf(field.get(firstArticle));
-        } catch (Exception ex) {
-            throw new IllegalArgumentException("Error during sort field value extraction", ex);
-        }
+        validateSortFieldName(sortFieldName);
+        return SORT_FIELDS.get(sortFieldName).apply(article);
     }
 }
