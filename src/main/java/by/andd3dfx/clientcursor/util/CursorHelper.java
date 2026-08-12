@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 public class CursorHelper {
 
     public static final String DEFAULT_ENCODING = "UTF-8";
+    public static final int MAX_PAGE_SIZE = 1000;
 
     private static final Map<String, Function<ArticleDto, String>> SORT_FIELDS = Map.of(
         "title", ArticleDto::getTitle,
@@ -28,6 +29,7 @@ public class CursorHelper {
         if (cursor == null) {
             return null;
         }
+
         try {
             byte[] bytes = objectMapper.writeValueAsBytes(cursor);
             return new String(Base64.getEncoder().encode(bytes), DEFAULT_ENCODING);
@@ -40,6 +42,7 @@ public class CursorHelper {
         if (encodedCursor == null) {
             return null;
         }
+
         try {
             byte[] bytes = Base64.getDecoder().decode(encodedCursor.getBytes(DEFAULT_ENCODING));
             return objectMapper.readValue(bytes, Cursor.class);
@@ -78,6 +81,7 @@ public class CursorHelper {
     }
 
     private void validateIncomingParams(Cursor cursor, Integer pageSize, String sortFieldName) {
+        validatePageSize(pageSize);
         if (cursor != null) {
             if (sortFieldName != null) {
                 throw new IllegalArgumentException("Sort field name should be set in param OR inside the cursor");
@@ -90,6 +94,15 @@ public class CursorHelper {
             validateSortFieldName(cursor.getSortFieldName());
         } else {
             validateSortFieldName(sortFieldName);
+        }
+    }
+
+    private void validatePageSize(Integer pageSize) {
+        if (pageSize == null || pageSize <= 0) {
+            throw new IllegalArgumentException("Page size must be a positive integer");
+        }
+        if (pageSize > MAX_PAGE_SIZE) {
+            throw new IllegalArgumentException("Page size must not be greater than " + MAX_PAGE_SIZE);
         }
     }
 
@@ -108,7 +121,7 @@ public class CursorHelper {
             return null;
         }
 
-        ArticleDto firstArticle = articles.get(0);
+        ArticleDto firstArticle = articles.getFirst();
         Long firstId = firstArticle.getId();
         return encode(new Cursor(false, firstId, sortFieldName, extractSortFieldValue(sortFieldName, firstArticle), sortOrder));
     }
@@ -119,7 +132,7 @@ public class CursorHelper {
             return null;
         }
 
-        ArticleDto lastArticle = articles.get(articles.size() - 1);
+        ArticleDto lastArticle = articles.getLast();
         Long lastId = lastArticle.getId();
         return encode(new Cursor(true, lastId, sortFieldName, extractSortFieldValue(sortFieldName, lastArticle), sortOrder));
     }

@@ -156,6 +156,30 @@ class CursorHelperTest {
     }
 
     @Test
+    void buildSearchCriteriaWhenPageSizeIsNull() {
+        IllegalArgumentException ex = Assertions.assertThrows(IllegalArgumentException.class, () ->
+            helper.buildSearchCriteria(null, null, "title", "ASC")
+        );
+        assertThat(ex.getMessage(), is("Page size must be a positive integer"));
+    }
+
+    @Test
+    void buildSearchCriteriaWhenPageSizeIsNotPositive() {
+        IllegalArgumentException ex = Assertions.assertThrows(IllegalArgumentException.class, () ->
+            helper.buildSearchCriteria(null, 0, "title", "ASC")
+        );
+        assertThat(ex.getMessage(), is("Page size must be a positive integer"));
+    }
+
+    @Test
+    void buildSearchCriteriaWhenPageSizeExceedsMax() {
+        IllegalArgumentException ex = Assertions.assertThrows(IllegalArgumentException.class, () ->
+            helper.buildSearchCriteria(null, CursorHelper.MAX_PAGE_SIZE + 1, "title", "ASC")
+        );
+        assertThat(ex.getMessage(), is("Page size must not be greater than " + CursorHelper.MAX_PAGE_SIZE));
+    }
+
+    @Test
     void buildPrevLink() {
         List<ArticleDto> articles = Arrays.asList(buildArticle(123L), buildArticle(125L));
 
