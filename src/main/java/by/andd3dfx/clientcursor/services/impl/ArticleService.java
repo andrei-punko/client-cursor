@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class ArticleService implements IArticleService {
 
@@ -32,7 +33,6 @@ public class ArticleService implements IArticleService {
         return articleMapper.toArticleDto(savedEntity);
     }
 
-    @Transactional(readOnly = true)
     @Override
     public ArticleDto get(Long id) {
         return articleRepository.findById(id)
@@ -60,7 +60,6 @@ public class ArticleService implements IArticleService {
         articleRepository.deleteById(id);
     }
 
-    @Transactional(readOnly = true)
     @Override
     public CursorResponse<ArticleDto> getByCursor(String encodedCursor, Integer pageSize, String sortFieldName, String sortOrder) {
         Cursor cursor = cursorHelper.decode(encodedCursor);
