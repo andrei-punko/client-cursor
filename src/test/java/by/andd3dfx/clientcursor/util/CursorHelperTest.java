@@ -159,7 +159,7 @@ class CursorHelperTest {
     void buildPrevLink() {
         List<ArticleDto> articles = Arrays.asList(buildArticle(123L), buildArticle(125L));
 
-        String prevLink = helper.buildPrevLink(articles, null, null);
+        String prevLink = helper.buildPrevLink(articles, null, null, "ASC");
 
         assertThat(new CursorHelper().decode(prevLink).getId(), is(123L));
     }
@@ -168,7 +168,7 @@ class CursorHelperTest {
     void buildPrevLinkWhenExplicitSortPresents() {
         List<ArticleDto> articles = Arrays.asList(buildArticle(123L), buildArticle(125L));
 
-        String prevLink = helper.buildPrevLink(articles, "title", null);
+        String prevLink = helper.buildPrevLink(articles, "title", null, "ASC");
 
         assertThat(prevLink, nullValue());
     }
@@ -177,9 +177,23 @@ class CursorHelperTest {
     void buildPrevLinkForTitle() {
         List<ArticleDto> articles = Arrays.asList(buildArticle(123L), buildArticle(125L));
 
-        String prevLink = helper.buildPrevLink(articles, null, "title");
+        String prevLink = helper.buildPrevLink(articles, null, "title", "ASC");
 
-        assertThat(new CursorHelper().decode(prevLink).getId(), is(123L));
+        Cursor decoded = helper.decode(prevLink);
+        assertThat(decoded.getId(), is(123L));
+        assertThat(decoded.getSortOrder(), is("ASC"));
+    }
+
+    @Test
+    void buildPrevLinkPreservesDescSortOrder() {
+        List<ArticleDto> articles = Arrays.asList(buildArticle(123L), buildArticle(125L));
+
+        String prevLink = helper.buildPrevLink(articles, null, "title", "DESC");
+
+        Cursor decoded = helper.decode(prevLink);
+        assertThat(decoded.getId(), is(123L));
+        assertThat(decoded.getSortFieldName(), is("title"));
+        assertThat(decoded.getSortOrder(), is("DESC"));
     }
 
     @Test
@@ -187,7 +201,7 @@ class CursorHelperTest {
         Integer pageSize = 2;
         List<ArticleDto> articles = Arrays.asList(buildArticle(123L), buildArticle(125L));
 
-        String nextLink = helper.buildNextLink(articles, pageSize, null);
+        String nextLink = helper.buildNextLink(articles, pageSize, null, "ASC");
 
         assertThat(new CursorHelper().decode(nextLink).getId(), is(125L));
     }
@@ -197,12 +211,27 @@ class CursorHelperTest {
         Integer pageSize = 2;
         List<ArticleDto> articles = Arrays.asList(buildArticle(123L), buildArticle(125L));
 
-        String nextLink = helper.buildNextLink(articles, pageSize, "title");
+        String nextLink = helper.buildNextLink(articles, pageSize, "title", "ASC");
 
         Cursor decoded = new CursorHelper().decode(nextLink);
         assertThat(decoded.getId(), is(125L));
         assertThat(decoded.getSortFieldName(), is("title"));
         assertThat(decoded.getSortFieldValue(), is("Some tittle value"));
+        assertThat(decoded.getSortOrder(), is("ASC"));
+    }
+
+    @Test
+    void buildNextLinkPreservesDescSortOrder() {
+        Integer pageSize = 2;
+        List<ArticleDto> articles = Arrays.asList(buildArticle(123L), buildArticle(125L));
+
+        String nextLink = helper.buildNextLink(articles, pageSize, "title", "DESC");
+
+        Cursor decoded = helper.decode(nextLink);
+        assertThat(decoded.getId(), is(125L));
+        assertThat(decoded.getSortFieldName(), is("title"));
+        assertThat(decoded.getSortFieldValue(), is("Some tittle value"));
+        assertThat(decoded.getSortOrder(), is("DESC"));
     }
 
     @Test
@@ -210,7 +239,7 @@ class CursorHelperTest {
         Integer pageSize = 2;
         List<ArticleDto> articles = Arrays.asList(buildArticle(123L), buildArticle(125L));
 
-        String nextLink = helper.buildNextLink(articles, pageSize, "author");
+        String nextLink = helper.buildNextLink(articles, pageSize, "author", "ASC");
 
         Cursor decoded = helper.decode(nextLink);
         assertThat(decoded.getId(), is(125L));
@@ -222,7 +251,7 @@ class CursorHelperTest {
     void buildPrevLinkForSummary() {
         List<ArticleDto> articles = Arrays.asList(buildArticle(123L), buildArticle(125L));
 
-        String prevLink = helper.buildPrevLink(articles, null, "summary");
+        String prevLink = helper.buildPrevLink(articles, null, "summary", "ASC");
 
         Cursor decoded = helper.decode(prevLink);
         assertThat(decoded.getId(), is(123L));
@@ -231,11 +260,43 @@ class CursorHelperTest {
     }
 
     @Test
+    void descSortOrderSurvivesNextCursorRoundTrip() {
+        ArticleSearchCriteria firstPage = helper.buildSearchCriteria(null, 2, "title", "DESC");
+        List<ArticleDto> articles = Arrays.asList(buildArticle(123L), buildArticle(125L));
+
+        String nextLink = helper.buildNextLink(articles, firstPage.getPageSize(), firstPage.getSortFieldName(),
+            firstPage.getSortOrder().name());
+        Cursor nextCursor = helper.decode(nextLink);
+        ArticleSearchCriteria secondPage = helper.buildSearchCriteria(nextCursor, 2, null, null);
+
+        assertThat(secondPage.getSortOrder(), is(ArticleSearchCriteria.SortOrder.DESC));
+        assertThat(secondPage.getSortFieldName(), is("title"));
+        assertThat(secondPage.isForward(), is(true));
+    }
+
+    @Test
+    void buildSearchCriteriaWhenDescPassedAsParam() {
+        ArticleSearchCriteria criteria = helper.buildSearchCriteria(null, 35, "title", "DESC");
+
+        assertThat(criteria.getSortOrder(), is(ArticleSearchCriteria.SortOrder.DESC));
+        assertThat(criteria.getSortFieldName(), is("title"));
+    }
+
+    @Test
+    void buildSearchCriteriaWhenDescEncodedInCursor() {
+        Cursor cursor = new Cursor(true, 123L, "title", "Some value", "DESC");
+
+        ArticleSearchCriteria criteria = helper.buildSearchCriteria(cursor, 35, null, "ASC");
+
+        assertThat(criteria.getSortOrder(), is(ArticleSearchCriteria.SortOrder.DESC));
+    }
+
+    @Test
     void buildNextLinkWhenNoRecordsInResult() {
         Integer pageSize = 50;
         List<ArticleDto> articles = Arrays.asList();
 
-        String nextLink = helper.buildNextLink(articles, pageSize, null);
+        String nextLink = helper.buildNextLink(articles, pageSize, null, "ASC");
 
         assertThat(nextLink, nullValue());
     }
@@ -245,7 +306,7 @@ class CursorHelperTest {
         Integer pageSize = 50;
         List<ArticleDto> articles = Arrays.asList(buildArticle(123L), buildArticle(125L));
 
-        String nextLink = helper.buildNextLink(articles, pageSize, null);
+        String nextLink = helper.buildNextLink(articles, pageSize, null, "DESC");
 
         assertThat(nextLink, nullValue());
     }

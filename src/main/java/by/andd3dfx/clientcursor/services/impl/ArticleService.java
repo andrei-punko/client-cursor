@@ -68,8 +68,9 @@ public class ArticleService implements IArticleService {
         List<Article> articles = articleRepository.findByCriteria(criteria);
 
         List<ArticleDto> articleDtos = articleMapper.toArticleDtoList(articles);
-        String prevLink = cursorHelper.buildPrevLink(articleDtos, sortFieldName, criteria.getSortFieldName());
-        String nextLink = cursorHelper.buildNextLink(articleDtos, pageSize, criteria.getSortFieldName());
+        String sortOrderName = criteria.getSortOrder().name();
+        String prevLink = cursorHelper.buildPrevLink(articleDtos, sortFieldName, criteria.getSortFieldName(), sortOrderName);
+        String nextLink = cursorHelper.buildNextLink(articleDtos, pageSize, criteria.getSortFieldName(), sortOrderName);
         return new CursorResponse<>(articleDtos, prevLink, nextLink);
     }
 }

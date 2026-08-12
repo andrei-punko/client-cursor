@@ -103,25 +103,25 @@ public class CursorHelper {
         }
     }
 
-    public String buildPrevLink(List<ArticleDto> articles, String explicitSort, String sortFieldName) {
+    public String buildPrevLink(List<ArticleDto> articles, String explicitSort, String sortFieldName, String sortOrder) {
         if (articles.isEmpty() || explicitSort != null) {
             return null;
         }
 
         ArticleDto firstArticle = articles.get(0);
         Long firstId = firstArticle.getId();
-        return encode(new Cursor(false, firstId, sortFieldName, extractSortFieldValue(sortFieldName, firstArticle), "ASC"));
+        return encode(new Cursor(false, firstId, sortFieldName, extractSortFieldValue(sortFieldName, firstArticle), sortOrder));
     }
 
 
-    public String buildNextLink(List<ArticleDto> articles, Integer pageSize, String sortFieldName) {
+    public String buildNextLink(List<ArticleDto> articles, Integer pageSize, String sortFieldName, String sortOrder) {
         if (articles.isEmpty() || articles.size() < pageSize) {
             return null;
         }
 
         ArticleDto lastArticle = articles.get(articles.size() - 1);
         Long lastId = lastArticle.getId();
-        return encode(new Cursor(true, lastId, sortFieldName, extractSortFieldValue(sortFieldName, lastArticle), "ASC"));
+        return encode(new Cursor(true, lastId, sortFieldName, extractSortFieldValue(sortFieldName, lastArticle), sortOrder));
     }
 
     private String extractSortFieldValue(String sortFieldName, ArticleDto article) {
