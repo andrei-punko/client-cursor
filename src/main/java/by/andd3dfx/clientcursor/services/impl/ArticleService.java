@@ -13,7 +13,6 @@ import by.andd3dfx.clientcursor.services.IArticleService;
 import by.andd3dfx.clientcursor.util.CursorHelper;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -55,11 +54,10 @@ public class ArticleService implements IArticleService {
     @Transactional
     @Override
     public void delete(Long id) {
-        try {
-            articleRepository.deleteById(id);
-        } catch (EmptyResultDataAccessException ex) {
+        if (!articleRepository.existsById(id)) {
             throw new ArticleNotFoundException(id);
         }
+        articleRepository.deleteById(id);
     }
 
     @Transactional(readOnly = true)
