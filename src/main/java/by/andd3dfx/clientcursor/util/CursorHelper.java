@@ -61,7 +61,7 @@ public class CursorHelper {
             criteria.setSortFieldValue(cursor.getSortFieldValue());
         }
         criteria.setSortFieldName(resolveSortFieldName(cursor, sortFieldName));
-        criteria.setSortOrder(SortOrder.valueOf(resolveSortOrder(cursor, sortOrder)));
+        criteria.setSortOrder(resolveAndValidateSortOrder(cursor, sortOrder));
         criteria.setPageSize(pageSize);
         return criteria;
     }
@@ -73,11 +73,17 @@ public class CursorHelper {
         return cursor.getSortFieldName();
     }
 
-    private String resolveSortOrder(Cursor cursor, String explicitSortOrder) {
-        if (cursor == null) {
-            return explicitSortOrder;
+    private SortOrder resolveAndValidateSortOrder(Cursor cursor, String explicitSortOrder) {
+        String order = (cursor == null) ? explicitSortOrder : cursor.getSortOrder();
+        if (order == null) {
+            return SortOrder.ASC;
         }
-        return cursor.getSortOrder();
+
+        try {
+            return SortOrder.valueOf(order);
+        } catch (IllegalArgumentException ex) {
+            throw new IllegalArgumentException("Unsupported sort order: '" + order + "'. Allowed: ASC, DESC");
+        }
     }
 
     private void validateIncomingParams(Cursor cursor, Integer pageSize, String sortFieldName) {

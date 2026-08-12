@@ -180,6 +180,31 @@ class CursorHelperTest {
     }
 
     @Test
+    void buildSearchCriteriaWhenUnsupportedOrderPassedAsParam() {
+        IllegalArgumentException ex = Assertions.assertThrows(IllegalArgumentException.class, () ->
+            helper.buildSearchCriteria(null, 35, "title", "UP")
+        );
+        assertThat(ex.getMessage(), is("Unsupported sort order: 'UP'. Allowed: ASC, DESC"));
+    }
+
+    @Test
+    void buildSearchCriteriaWhenUnsupportedOrderEncodedInCursor() {
+        Cursor cursor = new Cursor(true, 123L, "title", "Some value", "DOWN");
+
+        IllegalArgumentException ex = Assertions.assertThrows(IllegalArgumentException.class, () ->
+            helper.buildSearchCriteria(cursor, 35, null, "ASC")
+        );
+        assertThat(ex.getMessage(), is("Unsupported sort order: 'DOWN'. Allowed: ASC, DESC"));
+    }
+
+    @Test
+    void buildSearchCriteriaWhenOrderIsNullDefaultsToAsc() {
+        ArticleSearchCriteria criteria = helper.buildSearchCriteria(null, 35, "title", null);
+
+        assertThat(criteria.getSortOrder(), is(ArticleSearchCriteria.SortOrder.ASC));
+    }
+
+    @Test
     void buildPrevLink() {
         List<ArticleDto> articles = Arrays.asList(buildArticle(123L), buildArticle(125L));
 
