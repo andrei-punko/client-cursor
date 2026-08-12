@@ -23,19 +23,37 @@ public class ArticleRepositoryCustomImpl implements ArticleRepositoryCustom {
     private EntityManager em;
 
     /*
-        Check this page for details: https://itnan.ru/post.php?c=1&p=419083
+        Check next pages for details:
+        https://savepearlharbor.com/?p=287669
+        https://hackernoon.com/guys-were-doing-pagination-wrong-f6c18a91b232
 
         * Query for forward cursor:
-        SELECT * FROM items WHERE ...            -- apply search params
-        AND ((fieldName = :nextCursor.fieldName AND sequentialId > :nextCursor.sequentialId) OR
-        fieldName > :nextCursor.fieldName)
-        ORDER BY :sortingFieldName, :sequentialId
+        SELECT * FROM items WHERE
+            ...            -- apply search params
+            AND sequentialId > :nextCursor.sequentialId
+        ORDER BY :sequentialId
         LIMIT :count
 
         * Query for backward cursor:
-        SELECT * from items WHERE ...            -- apply search params
-        AND ((fieldName = :prevCursor.fieldName AND seq_id < :prevCursor.sequentialId) OR
-        fieldName < :prevCursor.fieldName)
+        SELECT * from items WHERE
+            ...            -- apply search params
+            AND seq_id < :prevCursor.sequentialId
+        ORDER BY :sequentialId DESC
+        LIMIT :count
+
+        * Query for forward cursor (with sorting by some field):
+        SELECT * FROM items WHERE
+            ...            -- apply search params
+            AND ((fieldName = :nextCursor.fieldName AND sequentialId > :nextCursor.sequentialId)
+            OR fieldName > :nextCursor.fieldName)
+        ORDER BY :sortingFieldName, :sequentialId
+        LIMIT :count
+
+        * Query for backward cursor (with sorting by some field):
+        SELECT * from items WHERE
+            ...            -- apply search params
+            AND ((fieldName = :prevCursor.fieldName AND seq_id < :prevCursor.sequentialId)
+            OR fieldName < :prevCursor.fieldName)
         ORDER BY :sortingFieldName DESC, :sequentialId DESC
         LIMIT :count
     */
