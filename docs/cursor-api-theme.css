@@ -41,13 +41,23 @@ code {
 }
 
 table {
-  font-size: 0.72em;
-  margin-top: 0.4em;
-  margin-bottom: 0.3em;
+  font-size: 0.68em;
+  margin-top: 0.35em;
+  margin-bottom: 0.25em;
+  width: auto;
+  max-width: 100%;
+  border-collapse: collapse;
 }
 
 th, td {
-  padding: 0.2em 0.55em;
+  padding: 0.2em 0.6em;
+  white-space: nowrap;
+}
+
+table.example th:first-child,
+table.example td:first-child {
+  width: 3.5em;
+  text-align: right;
 }
 
 table.example th {
@@ -66,7 +76,7 @@ tr.dup td {
   background: #fee2e2;
 }
 
-tr.anchor td {
+tr.cursor-pos td {
   background: #fef3c7;
 }
 

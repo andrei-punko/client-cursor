@@ -56,7 +56,7 @@ theme: cursor-api
   <tbody>
     <tr class="page1"><td>1</td><td>Ada</td><td>page 1</td></tr>
     <tr class="page1"><td>2</td><td>Bob</td><td>page 1</td></tr>
-    <tr class="page2"><td>3</td><td>Cat</td><td>page 2 ← OFFSET=2</td></tr>
+    <tr class="page2"><td>3</td><td>Cat</td><td>page 2</td></tr>
     <tr class="page2"><td>4</td><td>Dan</td><td>page 2</td></tr>
     <tr><td>5</td><td>Eve</td><td></td></tr>
   </tbody>
@@ -122,7 +122,7 @@ LIMIT 2 OFFSET 2;
   <tbody>
     <tr class="skipped"><td>1</td><td>Ada</td><td>уже видели</td></tr>
     <tr class="dup"><td>6</td><td>Ben</td><td>новая вставка</td></tr>
-    <tr class="dup"><td>2</td><td>Bob</td><td>снова на page 2!</td></tr>
+    <tr class="dup"><td>2</td><td>Bob</td><td>дубликат</td></tr>
     <tr class="page2"><td>3</td><td>Cat</td><td>OFFSET=2</td></tr>
   </tbody>
 </table>
@@ -166,12 +166,14 @@ LIMIT 2 OFFSET 2;
     <tr><th>id</th><th>author</th><th></th></tr>
   </thead>
   <tbody>
-    <tr><td>37</td><td>John</td><td></td></tr>
-    <tr class="anchor"><td>38</td><td>John</td><td>← курсор здесь</td></tr>
-    <tr class="page2"><td>39</td><td>John</td><td>следующая порция</td></tr>
-    <tr class="page2"><td>40</td><td>Zed</td><td></td></tr>
+    <tr class="skipped"><td>37</td><td>John</td><td></td></tr>
+    <tr class="cursor-pos"><td>38</td><td>John</td><td>курсор</td></tr>
+    <tr class="page2"><td>39</td><td>John</td><td>next</td></tr>
+    <tr class="page2"><td>40</td><td>Zed</td><td>next</td></tr>
   </tbody>
 </table>
+
+<p class="legend">Жёлтый — позиция курсора · Зелёный — следующая порция</p>
 
 Курсор хранит: `author` **+** `id` → однозначный seek.
 
@@ -266,7 +268,7 @@ LIMIT 2;
   </thead>
   <tbody>
     <tr class="skipped"><td>37</td><td>John</td><td></td></tr>
-    <tr class="anchor"><td>38</td><td>John</td><td>позиция курсора</td></tr>
+    <tr class="cursor-pos"><td>38</td><td>John</td><td>курсор</td></tr>
     <tr class="page2"><td>39</td><td>John</td><td>data[0]</td></tr>
     <tr class="page2"><td>40</td><td>Zed</td><td>data[1] → next</td></tr>
   </tbody>
@@ -339,7 +341,7 @@ LIMIT 2;
   <tbody>
     <tr class="page1"><td>37</td><td>John</td><td>после reverse</td></tr>
     <tr class="page1"><td>38</td><td>John</td><td>после reverse</td></tr>
-    <tr class="anchor"><td>39</td><td>John</td><td>позиция prev-курсора</td></tr>
+    <tr class="cursor-pos"><td>39</td><td>John</td><td>prev</td></tr>
     <tr class="skipped"><td>40</td><td>Zed</td><td></td></tr>
   </tbody>
 </table>
