@@ -12,8 +12,10 @@ import by.andd3dfx.clientcursor.exceptions.BadRequestException;
 import by.andd3dfx.clientcursor.dto.ArticleDto;
 import by.andd3dfx.clientcursor.dto.ArticleSearchCriteria;
 import by.andd3dfx.clientcursor.dto.Cursor;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -50,6 +52,17 @@ class CursorHelperTest {
         Assertions.assertThrows(BadRequestException.class, () -> {
             helper.decode("asdf jkl;");
         });
+    }
+
+    @Test
+    void encodeUsesShortJsonKeysOnly() {
+        Cursor cursor = new Cursor(true, 5L, null, null, "ASC");
+
+        String json = new String(Base64.getDecoder().decode(helper.encode(cursor)), StandardCharsets.UTF_8);
+
+        assertThat(json.contains("\"f\":true"), is(true));
+        assertThat(json.contains("forward"), is(false));
+        assertThat(json.contains("\"i\":5"), is(true));
     }
 
     @Test
