@@ -2,7 +2,6 @@
 
 Слайды: [cursor-api-presentation.md](cursor-api-presentation.md)  
 Тема: [cursor-api-theme.css](cursor-api-theme.css)  
-YouTube description: [cursor-api-script.md](cursor-api-script.md)
 
 ## Install Marp CLI (Chocolatey)
 

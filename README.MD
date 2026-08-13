@@ -49,6 +49,10 @@ http://localhost:9080/articles
 
 http://localhost:9080/swagger-ui/index.html
 
+## Presentation:
+
+Slides and Marp build instructions: [docs/README.md](docs/README.md)
+
 ## Useful CURL commands:
 
 ### New article addition:
