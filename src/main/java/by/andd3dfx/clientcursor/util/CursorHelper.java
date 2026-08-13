@@ -92,7 +92,7 @@ public class CursorHelper {
         if (cursor != null) {
             if (sortFieldName != null) {
                 throw new BadRequestException(
-                    "Do not pass query parameter 'sort' together with 'cursor'; sort is already encoded in the cursor"
+                    "Do not pass query parameter 'sort_by' together with 'cursor'; sort is already encoded in the cursor"
                 );
             }
 

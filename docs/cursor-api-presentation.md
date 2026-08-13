@@ -188,7 +188,7 @@ LIMIT 2 OFFSET 2;
 # Первый запрос
 
 ```http
-GET /articles?sort=author&order=ASC&size=2
+GET /articles?sort_by=author&sort_order=ASC&size=2
 ```
 
 ```sql
@@ -200,7 +200,7 @@ LIMIT 2;
 <!--
 Первый запрос — без курсора. Клиент задаёт размер страницы и, если нужно, сортировку.
 
-В нашем демо это GET /articles с sort=author, order=ASC и size=2. К базе уходит ORDER BY по полю сортировки и по id, плюс LIMIT.
+В нашем демо это GET /articles с sort_by=author, sort_order=ASC и size=2. К базе уходит ORDER BY по полю сортировки и по id, плюс LIMIT.
 -->
 
 ---
@@ -377,9 +377,9 @@ GET /articles?size=2&cursor=...
 <!--
 Удобный приём: упаковать параметры запроса в сам курсор.
 
-После первого запроса клиенту достаточно передавать size и cursor (на выбор - next или prev). Sort и order уже внутри курсора — их не нужно повторять в query string, и нельзя случайно пересортировать середину ленты другим полем.
+После первого запроса клиенту достаточно передавать size и cursor (на выбор - next или prev). sort_by и sort_order уже внутри курсора — их не нужно повторять в query string, и нельзя случайно пересортировать середину ленты другим полем.
 
-В нашем проекте это жёстко: если курсор уже есть, sort в query передавать нельзя — либо в параметре, либо внутри курсора.
+В нашем проекте это жёстко: если курсор уже есть, sort_by в query передавать нельзя — либо в параметре, либо внутри курсора.
 -->
 
 ---
@@ -389,7 +389,7 @@ GET /articles?size=2&cursor=...
 `GET /articles` → `{ "data", "prev", "next" }`
 
 ```bash
-curl 'http://localhost:9080/articles?size=2&sort=author'
+curl 'http://localhost:9080/articles?size=2&sort_by=author'
 
 curl 'http://localhost:9080/articles?size=2&cursor=...'
 ```
@@ -399,22 +399,22 @@ curl 'http://localhost:9080/articles?size=2&cursor=...'
 
 Это Spring Boot REST на порту 9080. Листинг статей: GET /articles, ответ data, prev, next.
 
-Первый запрос: curl с size=2 и sort=author. Во втором — тот же size и cursor из next или prev.
+Первый запрос: curl с size=2 и sort_by=author. Во втором — тот же size и cursor из next или prev.
 -->
 
 ---
 
 # Демо: правила
 
-- `sort` / `order` — только в **первом** запросе
+- `sort_by` / `sort_order` — только в **первом** запросе
 - `size` можно менять на каждом запросе
-- `next = null`, если `data.size < size`
-- `prev = null`, если в запросе нет `cursor` или `data` пустой
-- sort: `title` | `author` | `summary`
+- `next = null`, если это последняя страница (даже если записей ровно `size`)
+- `prev = null`, если это первая страница (в том числе после шага назад)
+- sort_by: `title` | `author` | `summary`
 - Swagger: `localhost:9080/swagger-ui`
 
 <!--
-Правила, которые полезно помнить: sort только на старте; size можно менять; next становится null, когда данных меньше size; prev равен null, если в запросе нет cursor или data пустой. Sort-поля ограничены whitelist: title, author, summary. Sequential id здесь — обычный generated Article.id. Подробности и Swagger — по ссылкам в описании.
+Правила, которые полезно помнить: sort_by и sort_order только на старте; size можно менять; next становится null на последней странице; prev равен null на первой странице — в том числе когда пришли туда шагом назад. Sort-поля ограничены whitelist: title, author, summary. Sequential id здесь — обычный generated Article.id. Подробности и Swagger — по ссылкам в описании.
 -->
 
 ---

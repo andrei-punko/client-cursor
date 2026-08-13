@@ -115,7 +115,7 @@ class CursorHelperTest {
             fail("Exception should be thrown");
         } catch (BadRequestException iae) {
             assertThat(iae.getMessage(), is(
-                "Do not pass query parameter 'sort' together with 'cursor'; sort is already encoded in the cursor"
+                "Do not pass query parameter 'sort_by' together with 'cursor'; sort is already encoded in the cursor"
             ));
         }
     }

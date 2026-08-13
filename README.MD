@@ -82,10 +82,10 @@ Use cursor as a parameter in next requests:
 curl -i 'http://localhost:9080/articles?size=2&cursor=PUT_NEXT_OR_PREV_CURSOR_HERE'
 ```
 
-If needed - add `sort` parameter to query, for example `sort=title`.  
+If needed - add `sort_by` parameter to query, for example `sort_by=title`.  
 You need to pass it only in initial query, after that all info will be encoded into next/prev cursor and you need to
 pass cursor only (and `size` if needed).  
-Order direction via `order` parameter is supported (`ASC`/`DESC`)
+Order direction via `sort_order` parameter is supported (`ASC`/`DESC`)
 
 ### Deletion of article:
 
