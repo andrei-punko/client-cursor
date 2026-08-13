@@ -5,27 +5,29 @@
 
 Based on [Template for Spring Boot application](https://github.com/andrei-punko/spring-boot-3-template)
 
-Includes web-server on port 9080 with `/articles` endpoint exposed.  
-Supports CRUD set of operations and R with pagination
+Includes a web server on port `9080` with `/articles` endpoint.  
+Supports CRUD and cursor-based list pagination (`prev` / `next`).
 
-## Prerequisites:
+## Prerequisites
 
 - Maven 3
 - JDK 21
 
-## How to build:
+## How to build
 
-    mvn clean install
+```
+mvn clean install
+```
 
-## How to build Docker image with application inside:
+## How to build Docker image
 
-    docker build ./ -t client-cursor-app
+```
+docker build ./ -t client-cursor-app
+```
 
-## How to start:
+## How to start
 
-Use [run.bat](./run.bat) script or
-
-Use next command:
+Use [run.bat](./run.bat) or:
 
 ```
 java -jar target/client-cursor-0.0.1-SNAPSHOT.jar \
@@ -35,64 +37,77 @@ java -jar target/client-cursor-0.0.1-SNAPSHOT.jar \
  --spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.H2Dialect
 ```
 
-Use Docker compose:
+Or with Docker Compose:
 
 ```
 docker-compose up
 ```
 
-## Link for quick check:
+## Quick links
 
-http://localhost:9080/articles
+- API: http://localhost:9080/articles
+- Swagger: http://localhost:9080/swagger-ui/index.html
+- Presentation (Marp slides): [docs/README.md](docs/README.md)
 
-## Swagger documentation:
+## Useful CURL commands
 
-http://localhost:9080/swagger-ui/index.html
-
-## Presentation:
-
-Slides and Marp build instructions: [docs/README.md](docs/README.md)
-
-## Useful CURL commands:
-
-### New article addition:
+### Create article
 
 ```
-curl -i -H "Accept: application/json" -H "Content-Type: application/json" -d '{ "title": "Some title", "text": "Some text", "author": "Jane Doe" }' -X POST http://localhost:9080/articles
+curl -i -H "Accept: application/json" -H "Content-Type: application/json" \
+  -d '{ "title": "Some title", "text": "Some text", "author": "Jane Doe" }' \
+  -X POST http://localhost:9080/articles
 ```
 
-### Get existing article:
+### Get article by id
 
 ```
 curl -i http://localhost:9080/articles/1
 ```
 
-### Update existing article:
+### Update article
 
 ```
-curl -i -H "Accept: application/json" -H "Content-Type: application/json" -d '{ "title": "Another title" }' -X PATCH http://localhost:9080/articles/2
+curl -i -H "Accept: application/json" -H "Content-Type: application/json" \
+  -d '{ "title": "Another title" }' \
+  -X PATCH http://localhost:9080/articles/2
 ```
 
-### Get list of articles using cursor:
+### List articles by cursor
 
 ```
 curl -i 'http://localhost:9080/articles?size=2'
 ```
 
-Next and prev cursors placed in response: `{"data":[...], "prev":..., "next":...}`  
-Use cursor as a parameter in next requests:
+Response shape: `{"data":[...], "prev":..., "next":...}`
+
+Pass `next` / `prev` as `cursor` in the next request:
 
 ```
 curl -i 'http://localhost:9080/articles?size=2&cursor=PUT_NEXT_OR_PREV_CURSOR_HERE'
 ```
 
-If needed - add `sort_by` parameter to query, for example `sort_by=title`.  
-You need to pass it only in initial query, after that all info will be encoded into next/prev cursor and you need to
-pass cursor only (and `size` if needed).  
-Order direction via `sort_order` parameter is supported (`ASC`/`DESC`)
+Optional sorting on the **first** request only:
 
-### Deletion of article:
+```
+curl -i 'http://localhost:9080/articles?size=2&sort_by=title&sort_order=ASC'
+```
+
+- `sort_by`: `title` | `author` | `summary`
+- `sort_order`: `ASC` | `DESC` (default `ASC`)
+- After the first page, sort is taken from the cursor — do not pass `sort_by` together with `cursor`
+- `prev` is `null` on the first page; `next` is `null` on the last page
+
+### Delete article
 
 ```
 curl -i -X DELETE http://localhost:9080/articles/1
+```
+
+## Functional tests
+
+App must be running on port `9080`, then:
+
+```
+run-func-tests.bat
 ```
