@@ -122,8 +122,8 @@ public class CursorHelper {
         }
     }
 
-    public String buildPrevLink(List<ArticleDto> articles, String explicitSort, String sortFieldName, String sortOrder) {
-        if (articles.isEmpty() || explicitSort != null) {
+    public String buildPrevLink(List<ArticleDto> articles, Cursor cursor, String sortFieldName, String sortOrder) {
+        if (articles.isEmpty() || cursor == null) {
             return null;
         }
 

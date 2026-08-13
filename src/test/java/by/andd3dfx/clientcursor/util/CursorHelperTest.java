@@ -207,17 +207,18 @@ class CursorHelperTest {
     @Test
     void buildPrevLink() {
         List<ArticleDto> articles = Arrays.asList(buildArticle(123L), buildArticle(125L));
+        Cursor cursor = new Cursor(true, 100L, null, null, "ASC");
 
-        String prevLink = helper.buildPrevLink(articles, null, null, "ASC");
+        String prevLink = helper.buildPrevLink(articles, cursor, null, "ASC");
 
         assertThat(new CursorHelper().decode(prevLink).getId(), is(123L));
     }
 
     @Test
-    void buildPrevLinkWhenExplicitSortPresents() {
+    void buildPrevLinkWhenNoCursor() {
         List<ArticleDto> articles = Arrays.asList(buildArticle(123L), buildArticle(125L));
 
-        String prevLink = helper.buildPrevLink(articles, "title", null, "ASC");
+        String prevLink = helper.buildPrevLink(articles, null, "title", "ASC");
 
         assertThat(prevLink, nullValue());
     }
@@ -225,8 +226,9 @@ class CursorHelperTest {
     @Test
     void buildPrevLinkForTitle() {
         List<ArticleDto> articles = Arrays.asList(buildArticle(123L), buildArticle(125L));
+        Cursor cursor = new Cursor(true, 100L, "title", "Some tittle value", "ASC");
 
-        String prevLink = helper.buildPrevLink(articles, null, "title", "ASC");
+        String prevLink = helper.buildPrevLink(articles, cursor, "title", "ASC");
 
         Cursor decoded = helper.decode(prevLink);
         assertThat(decoded.getId(), is(123L));
@@ -236,8 +238,9 @@ class CursorHelperTest {
     @Test
     void buildPrevLinkPreservesDescSortOrder() {
         List<ArticleDto> articles = Arrays.asList(buildArticle(123L), buildArticle(125L));
+        Cursor cursor = new Cursor(true, 100L, "title", "Some tittle value", "DESC");
 
-        String prevLink = helper.buildPrevLink(articles, null, "title", "DESC");
+        String prevLink = helper.buildPrevLink(articles, cursor, "title", "DESC");
 
         Cursor decoded = helper.decode(prevLink);
         assertThat(decoded.getId(), is(123L));
@@ -299,8 +302,9 @@ class CursorHelperTest {
     @Test
     void buildPrevLinkForSummary() {
         List<ArticleDto> articles = Arrays.asList(buildArticle(123L), buildArticle(125L));
+        Cursor cursor = new Cursor(true, 100L, "summary", "Some summary value", "ASC");
 
-        String prevLink = helper.buildPrevLink(articles, null, "summary", "ASC");
+        String prevLink = helper.buildPrevLink(articles, cursor, "summary", "ASC");
 
         Cursor decoded = helper.decode(prevLink);
         assertThat(decoded.getId(), is(123L));
