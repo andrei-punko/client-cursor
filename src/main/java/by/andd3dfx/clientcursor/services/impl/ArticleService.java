@@ -11,6 +11,7 @@ import by.andd3dfx.clientcursor.persistence.dao.ArticleRepository;
 import by.andd3dfx.clientcursor.persistence.entities.Article;
 import by.andd3dfx.clientcursor.services.IArticleService;
 import by.andd3dfx.clientcursor.util.CursorHelper;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -64,12 +65,28 @@ public class ArticleService implements IArticleService {
     public CursorResponse<ArticleDto> getByCursor(String encodedCursor, Integer pageSize, String sortFieldName, String sortOrder) {
         Cursor cursor = cursorHelper.decode(encodedCursor);
         ArticleSearchCriteria criteria = cursorHelper.buildSearchCriteria(cursor, pageSize, sortFieldName, sortOrder);
+        boolean backward = criteria.isBackward();
+        criteria.setPageSize(pageSize + 1);
         List<Article> articles = articleRepository.findByCriteria(criteria);
 
+        boolean hasMore = articles.size() > pageSize;
+        if (hasMore) {
+            articles = trimExtraRecord(articles, backward);
+        }
+
         List<ArticleDto> articleDtos = articleMapper.toArticleDtoList(articles);
+        boolean hasPrev = !articleDtos.isEmpty() && (backward ? hasMore : cursor != null);
+        boolean hasNext = !articleDtos.isEmpty() && (backward || hasMore);
         String sortOrderName = criteria.getSortOrder().name();
-        String prevLink = cursorHelper.buildPrevLink(articleDtos, cursor, criteria.getSortFieldName(), sortOrderName);
-        String nextLink = cursorHelper.buildNextLink(articleDtos, pageSize, criteria.getSortFieldName(), sortOrderName);
+        String prevLink = cursorHelper.buildPrevLink(articleDtos, hasPrev, criteria.getSortFieldName(), sortOrderName);
+        String nextLink = cursorHelper.buildNextLink(articleDtos, hasNext, criteria.getSortFieldName(), sortOrderName);
         return new CursorResponse<>(articleDtos, prevLink, nextLink);
+    }
+
+    private List<Article> trimExtraRecord(List<Article> articles, boolean backward) {
+        if (backward) {
+            return new ArrayList<>(articles.subList(1, articles.size()));
+        }
+        return new ArrayList<>(articles.subList(0, articles.size() - 1));
     }
 }

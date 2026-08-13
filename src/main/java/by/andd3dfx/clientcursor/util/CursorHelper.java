@@ -125,8 +125,8 @@ public class CursorHelper {
         }
     }
 
-    public String buildPrevLink(List<ArticleDto> articles, Cursor cursor, String sortFieldName, String sortOrder) {
-        if (articles.isEmpty() || cursor == null) {
+    public String buildPrevLink(List<ArticleDto> articles, boolean hasPrev, String sortFieldName, String sortOrder) {
+        if (!hasPrev || articles.isEmpty()) {
             return null;
         }
 
@@ -136,8 +136,8 @@ public class CursorHelper {
     }
 
 
-    public String buildNextLink(List<ArticleDto> articles, Integer pageSize, String sortFieldName, String sortOrder) {
-        if (articles.isEmpty() || articles.size() < pageSize) {
+    public String buildNextLink(List<ArticleDto> articles, boolean hasNext, String sortFieldName, String sortOrder) {
+        if (!hasNext || articles.isEmpty()) {
             return null;
         }
 

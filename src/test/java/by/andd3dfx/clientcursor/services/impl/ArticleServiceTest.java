@@ -185,9 +185,9 @@ class ArticleServiceTest {
         final List<ArticleDto> articleDtos = Arrays.asList(new ArticleDto());
         Mockito.when(articleMapperMock.toArticleDtoList(articles)).thenReturn(articleDtos);
         final String prevLink = "some-prev-link";
-        Mockito.when(cursorHelperMock.buildPrevLink(articleDtos, cursor, criteria.getSortFieldName(), "ASC")).thenReturn(prevLink);
+        Mockito.when(cursorHelperMock.buildPrevLink(articleDtos, true, criteria.getSortFieldName(), "ASC")).thenReturn(prevLink);
         final String nextLink = "some-next-link";
-        Mockito.when(cursorHelperMock.buildNextLink(articleDtos, pageSize, criteria.getSortFieldName(), "ASC")).thenReturn(nextLink);
+        Mockito.when(cursorHelperMock.buildNextLink(articleDtos, false, criteria.getSortFieldName(), "ASC")).thenReturn(nextLink);
 
         CursorResponse<ArticleDto> response = articleService
                 .getByCursor(encodedCursor, pageSize, sortFieldName, sortOrder);
@@ -200,7 +200,55 @@ class ArticleServiceTest {
         Mockito.verify(cursorHelperMock).buildSearchCriteria(cursor, pageSize, sortFieldName, sortOrder);
         Mockito.verify(articleRepositoryMock).findByCriteria(criteria);
         Mockito.verify(articleMapperMock).toArticleDtoList(articles);
-        Mockito.verify(cursorHelperMock).buildPrevLink(articleDtos, cursor, criteria.getSortFieldName(), "ASC");
-        Mockito.verify(cursorHelperMock).buildNextLink(articleDtos, pageSize, criteria.getSortFieldName(), "ASC");
+        Mockito.verify(cursorHelperMock).buildPrevLink(articleDtos, true, criteria.getSortFieldName(), "ASC");
+        Mockito.verify(cursorHelperMock).buildNextLink(articleDtos, false, criteria.getSortFieldName(), "ASC");
+    }
+
+    @Test
+    public void getByCursorBackwardToFirstPageHasNoPrev() {
+        final String encodedCursor = "some-encoded-cursor";
+        final int pageSize = 2;
+        final Cursor cursor = new Cursor();
+        cursor.setForward(false);
+
+        Mockito.when(cursorHelperMock.decode(encodedCursor)).thenReturn(cursor);
+        final ArticleSearchCriteria criteria = new ArticleSearchCriteria();
+        criteria.setForward(false);
+        Mockito.when(cursorHelperMock.buildSearchCriteria(cursor, pageSize, null, "ASC")).thenReturn(criteria);
+        final List<Article> articles = Arrays.asList(new Article(), new Article());
+        Mockito.when(articleRepositoryMock.findByCriteria(criteria)).thenReturn(articles);
+        final List<ArticleDto> articleDtos = Arrays.asList(new ArticleDto(), new ArticleDto());
+        Mockito.when(articleMapperMock.toArticleDtoList(articles)).thenReturn(articleDtos);
+        Mockito.when(cursorHelperMock.buildPrevLink(articleDtos, false, criteria.getSortFieldName(), "ASC")).thenReturn(null);
+        Mockito.when(cursorHelperMock.buildNextLink(articleDtos, true, criteria.getSortFieldName(), "ASC")).thenReturn("next");
+
+        CursorResponse<ArticleDto> response = articleService.getByCursor(encodedCursor, pageSize, null, "ASC");
+
+        assertThat(response.getPrev(), is((String) null));
+        assertThat(response.getNext(), is("next"));
+        Mockito.verify(cursorHelperMock).buildPrevLink(articleDtos, false, criteria.getSortFieldName(), "ASC");
+        Mockito.verify(cursorHelperMock).buildNextLink(articleDtos, true, criteria.getSortFieldName(), "ASC");
+    }
+
+    @Test
+    public void getByCursorFirstPageExactSizeHasNoNext() {
+        final int pageSize = 2;
+
+        Mockito.when(cursorHelperMock.decode(null)).thenReturn(null);
+        final ArticleSearchCriteria criteria = new ArticleSearchCriteria();
+        Mockito.when(cursorHelperMock.buildSearchCriteria(null, pageSize, null, "ASC")).thenReturn(criteria);
+        final List<Article> articles = Arrays.asList(new Article(), new Article());
+        Mockito.when(articleRepositoryMock.findByCriteria(criteria)).thenReturn(articles);
+        final List<ArticleDto> articleDtos = Arrays.asList(new ArticleDto(), new ArticleDto());
+        Mockito.when(articleMapperMock.toArticleDtoList(articles)).thenReturn(articleDtos);
+        Mockito.when(cursorHelperMock.buildPrevLink(articleDtos, false, criteria.getSortFieldName(), "ASC")).thenReturn(null);
+        Mockito.when(cursorHelperMock.buildNextLink(articleDtos, false, criteria.getSortFieldName(), "ASC")).thenReturn(null);
+
+        CursorResponse<ArticleDto> response = articleService.getByCursor(null, pageSize, null, "ASC");
+
+        assertThat(response.getPrev(), is((String) null));
+        assertThat(response.getNext(), is((String) null));
+        Mockito.verify(cursorHelperMock).buildPrevLink(articleDtos, false, criteria.getSortFieldName(), "ASC");
+        Mockito.verify(cursorHelperMock).buildNextLink(articleDtos, false, criteria.getSortFieldName(), "ASC");
     }
 }
