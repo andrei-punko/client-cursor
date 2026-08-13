@@ -4,6 +4,7 @@ import by.andd3dfx.clientcursor.dto.ArticleDto;
 import by.andd3dfx.clientcursor.dto.ArticleSearchCriteria;
 import by.andd3dfx.clientcursor.dto.ArticleSearchCriteria.SortOrder;
 import by.andd3dfx.clientcursor.dto.Cursor;
+import by.andd3dfx.clientcursor.exceptions.BadRequestException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Base64;
 import java.util.List;
@@ -47,7 +48,7 @@ public class CursorHelper {
             byte[] bytes = Base64.getDecoder().decode(encodedCursor.getBytes(DEFAULT_ENCODING));
             return objectMapper.readValue(bytes, Cursor.class);
         } catch (Exception ex) {
-            throw new IllegalArgumentException("Error during decoding", ex);
+            throw new BadRequestException("Error during decoding", ex);
         }
     }
 
@@ -82,7 +83,7 @@ public class CursorHelper {
         try {
             return SortOrder.valueOf(order);
         } catch (IllegalArgumentException ex) {
-            throw new IllegalArgumentException("Unsupported sort order: '" + order + "'. Allowed: ASC, DESC");
+            throw new BadRequestException("Unsupported sort order: '" + order + "'. Allowed: ASC, DESC");
         }
     }
 
@@ -90,11 +91,13 @@ public class CursorHelper {
         validatePageSize(pageSize);
         if (cursor != null) {
             if (sortFieldName != null) {
-                throw new IllegalArgumentException("Sort field name should be set in param OR inside the cursor");
+                throw new BadRequestException(
+                    "Do not pass query parameter 'sort' together with 'cursor'; sort is already encoded in the cursor"
+                );
             }
 
             if (cursor.getSortFieldName() != null && cursor.getSortFieldValue() == null) {
-                throw new IllegalArgumentException("Sort field name & value should be populated inside the cursor at the same time");
+                throw new BadRequestException("Sort field name & value should be populated inside the cursor at the same time");
             }
 
             validateSortFieldName(cursor.getSortFieldName());
@@ -105,10 +108,10 @@ public class CursorHelper {
 
     private void validatePageSize(Integer pageSize) {
         if (pageSize == null || pageSize <= 0) {
-            throw new IllegalArgumentException("Page size must be a positive integer");
+            throw new BadRequestException("Page size must be a positive integer");
         }
         if (pageSize > MAX_PAGE_SIZE) {
-            throw new IllegalArgumentException("Page size must not be greater than " + MAX_PAGE_SIZE);
+            throw new BadRequestException("Page size must not be greater than " + MAX_PAGE_SIZE);
         }
     }
 
@@ -118,7 +121,7 @@ public class CursorHelper {
         }
         if (!SORT_FIELDS.containsKey(sortFieldName)) {
             String allowed = String.join(", ", SORT_FIELDS.keySet());
-            throw new IllegalArgumentException("Unsupported sort field: '" + sortFieldName + "'. Allowed: " + allowed);
+            throw new BadRequestException("Unsupported sort field: '" + sortFieldName + "'. Allowed: " + allowed);
         }
     }
 

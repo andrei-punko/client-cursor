@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import by.andd3dfx.clientcursor.exceptions.BadRequestException;
 import by.andd3dfx.clientcursor.dto.ArticleDto;
 import by.andd3dfx.clientcursor.dto.ArticleSearchCriteria;
 import by.andd3dfx.clientcursor.dto.Cursor;
@@ -46,7 +47,7 @@ class CursorHelperTest {
 
     @Test
     void decodeForWrongString() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        Assertions.assertThrows(BadRequestException.class, () -> {
             helper.decode("asdf jkl;");
         });
     }
@@ -112,8 +113,10 @@ class CursorHelperTest {
         try {
             helper.buildSearchCriteria(cursor, pageSize,  "title", "ASC");
             fail("Exception should be thrown");
-        } catch (IllegalArgumentException iae) {
-            assertThat(iae.getMessage(), is("Sort field name should be set in param OR inside the cursor"));
+        } catch (BadRequestException iae) {
+            assertThat(iae.getMessage(), is(
+                "Do not pass query parameter 'sort' together with 'cursor'; sort is already encoded in the cursor"
+            ));
         }
     }
 
@@ -126,14 +129,14 @@ class CursorHelperTest {
         try {
             helper.buildSearchCriteria(cursor, pageSize,  null, "ASC");
             fail("Exception should be thrown");
-        } catch (IllegalArgumentException iae) {
+        } catch (BadRequestException iae) {
             assertThat(iae.getMessage(), is("Sort field name & value should be populated inside the cursor at the same time"));
         }
     }
 
     @Test
     void buildSearchCriteriaWhenUnsupportedSortPassedAsParam() {
-        Assertions.assertThrows(IllegalArgumentException.class, () ->
+        Assertions.assertThrows(BadRequestException.class, () ->
             helper.buildSearchCriteria(null, 35, "unknown", "ASC")
         );
     }
@@ -142,7 +145,7 @@ class CursorHelperTest {
     void buildSearchCriteriaWhenUnsupportedSortEncodedInCursor() {
         Cursor cursor = new Cursor(true, 123L, "text", "Some value", "ASC");
 
-        Assertions.assertThrows(IllegalArgumentException.class, () ->
+        Assertions.assertThrows(BadRequestException.class, () ->
             helper.buildSearchCriteria(cursor, 35, null, "ASC")
         );
     }
@@ -157,7 +160,7 @@ class CursorHelperTest {
 
     @Test
     void buildSearchCriteriaWhenPageSizeIsNull() {
-        IllegalArgumentException ex = Assertions.assertThrows(IllegalArgumentException.class, () ->
+        BadRequestException ex = Assertions.assertThrows(BadRequestException.class, () ->
             helper.buildSearchCriteria(null, null, "title", "ASC")
         );
         assertThat(ex.getMessage(), is("Page size must be a positive integer"));
@@ -165,7 +168,7 @@ class CursorHelperTest {
 
     @Test
     void buildSearchCriteriaWhenPageSizeIsNotPositive() {
-        IllegalArgumentException ex = Assertions.assertThrows(IllegalArgumentException.class, () ->
+        BadRequestException ex = Assertions.assertThrows(BadRequestException.class, () ->
             helper.buildSearchCriteria(null, 0, "title", "ASC")
         );
         assertThat(ex.getMessage(), is("Page size must be a positive integer"));
@@ -173,7 +176,7 @@ class CursorHelperTest {
 
     @Test
     void buildSearchCriteriaWhenPageSizeExceedsMax() {
-        IllegalArgumentException ex = Assertions.assertThrows(IllegalArgumentException.class, () ->
+        BadRequestException ex = Assertions.assertThrows(BadRequestException.class, () ->
             helper.buildSearchCriteria(null, CursorHelper.MAX_PAGE_SIZE + 1, "title", "ASC")
         );
         assertThat(ex.getMessage(), is("Page size must not be greater than " + CursorHelper.MAX_PAGE_SIZE));
@@ -181,7 +184,7 @@ class CursorHelperTest {
 
     @Test
     void buildSearchCriteriaWhenUnsupportedOrderPassedAsParam() {
-        IllegalArgumentException ex = Assertions.assertThrows(IllegalArgumentException.class, () ->
+        BadRequestException ex = Assertions.assertThrows(BadRequestException.class, () ->
             helper.buildSearchCriteria(null, 35, "title", "UP")
         );
         assertThat(ex.getMessage(), is("Unsupported sort order: 'UP'. Allowed: ASC, DESC"));
@@ -191,7 +194,7 @@ class CursorHelperTest {
     void buildSearchCriteriaWhenUnsupportedOrderEncodedInCursor() {
         Cursor cursor = new Cursor(true, 123L, "title", "Some value", "DOWN");
 
-        IllegalArgumentException ex = Assertions.assertThrows(IllegalArgumentException.class, () ->
+        BadRequestException ex = Assertions.assertThrows(BadRequestException.class, () ->
             helper.buildSearchCriteria(cursor, 35, null, "ASC")
         );
         assertThat(ex.getMessage(), is("Unsupported sort order: 'DOWN'. Allowed: ASC, DESC"));
