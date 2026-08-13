@@ -24,12 +24,95 @@ class SomeSpec extends Specification {
         def prev = decodeCursor(getResponse.responseData.prev as String)
         assert prev.i == 3
         assert prev.o == 'ASC'
-        assert cursorForward(prev) == false
+        assert prev.f == false
         and: 'next cursor points to id 4, forward, ASC'
         def next = decodeCursor(getResponse.responseData.next as String)
         assert next.i == 4
         assert next.o == 'ASC'
-        assert cursorForward(next) == true
+        assert next.f == true
+        and: 'cursor payload has no duplicated forward key'
+        assert !prev.containsKey('forward')
+        assert !next.containsKey('forward')
+    }
+
+    def 'First page has no prev cursor'() {
+        when: 'get first page without cursor'
+        def getResponse = restClient.get(
+                path: '/articles',
+                query: [size: 2],
+        )
+
+        then: 'server returns 200 code (ok)'
+        assert getResponse.status == 200
+        and: 'got 2 records'
+        assert getResponse.responseData.data.size() == 2
+        and: 'prev is absent on the first page'
+        assert getResponse.responseData.prev == null
+        and: 'next is present'
+        assert getResponse.responseData.next != null
+    }
+
+    def 'Read articles with sort_by and sort_order'() {
+        when: 'get first page sorted by author'
+        def getResponse = restClient.get(
+                path: '/articles',
+                query: [size: 2, sort_by: 'author', sort_order: 'ASC'],
+        )
+
+        then: 'server returns 200 code (ok)'
+        assert getResponse.status == 200
+        and: 'got 2 records'
+        assert getResponse.responseData.data.size() == 2
+        and: 'prev is absent on the first page'
+        assert getResponse.responseData.prev == null
+        and: 'next cursor stores sort field'
+        def next = decodeCursor(getResponse.responseData.next as String)
+        assert next.n == 'author'
+        assert next.o == 'ASC'
+        assert next.f == true
+    }
+
+    def 'Reject sort_by together with cursor'() {
+        when: 'pass sort_by and cursor together'
+        restClient.get(
+                path: '/articles',
+                query: [
+                        size   : 2,
+                        sort_by: 'title',
+                        cursor : 'eyJmIjp0cnVlLCJpIjoyLCJuIjpudWxsLCJ2IjpudWxsLCJvIjoiQVNDIn0'
+                ],
+        )
+
+        then: 'server returns 400'
+        HttpResponseException e = thrown()
+        assert e.statusCode == 400
+        and: 'error explains the mistake'
+        def problem = new JsonSlurper().parse(e.response.responseData)
+        assert problem.detail.contains("Do not pass query parameter 'sort_by' together with 'cursor'")
+    }
+
+    def 'Going back to first page clears prev'() {
+        given: 'first page'
+        def firstPage = restClient.get(path: '/articles', query: [size: 2])
+        def nextCursor = firstPage.responseData.next as String
+
+        when: 'go forward'
+        def secondPage = restClient.get(path: '/articles', query: [size: 2, cursor: nextCursor])
+        def prevCursor = secondPage.responseData.prev as String
+
+        then: 'second page has both cursors'
+        assert secondPage.status == 200
+        assert prevCursor != null
+        assert secondPage.responseData.next != null
+
+        when: 'go back to the first page'
+        def backToFirst = restClient.get(path: '/articles', query: [size: 2, cursor: prevCursor])
+
+        then: 'prev is absent again'
+        assert backToFirst.status == 200
+        assert backToFirst.responseData.data.size() == 2
+        assert backToFirst.responseData.prev == null
+        assert backToFirst.responseData.next != null
     }
 
     def 'Read particular article'() {
@@ -122,18 +205,5 @@ class SomeSpec extends Specification {
     private static Map decodeCursor(String encoded) {
         def json = new String(encoded.decodeBase64(), 'UTF-8')
         (Map) new JsonSlurper().parseText(json)
-    }
-
-    /**
-     * Cursor JSON uses short key "f"; newer Jackson may also emit "forward" for the same flag.
-     */
-    private static boolean cursorForward(Map c) {
-        if (c.containsKey('f')) {
-            return c.f as boolean
-        }
-        if (c.containsKey('forward')) {
-            return c.forward as boolean
-        }
-        true
     }
 }
