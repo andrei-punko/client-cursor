@@ -111,3 +111,7 @@ App must be running on port `9080`, then:
 ```
 run-func-tests.bat
 ```
+
+## Video with project description
+
+[![YouTube link](https://markdown-videos-api.jorgenkh.no/url?url=https%3A%2F%2Fyoutu.be%2FhLW8Z70Xq1E)](https://youtu.be/hLW8Z70Xq1E)
